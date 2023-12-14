@@ -99,9 +99,9 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
             return readableDate.split(' ')[1] ###returns only hh:mm:ss
         
         def  getTransactionHistory(self,sleep):
-                telegram=Telegram.Telegram(exchange=self.exchange)
+                telegram=Telegram.Telegram(channel=self.exchange)
                 text=''
-                orderMan=newOrderMan.OrderMan(self.key)
+                orderMan=newOrderMan.OrderMan(key=3)
                 old=self._turnDictByAsset(orderMan.getUser_info_account()['data']['balances'])
                 while True:
                     time.sleep(sleep*60)

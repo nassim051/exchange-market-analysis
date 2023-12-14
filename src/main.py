@@ -1,32 +1,30 @@
 import src.exchange.gateio.Analyse.GateioAnalystMan as GateioAnalystMan
 import src.exchange.lbank.analyse.LBankAnalystMan as LBankAnalystMan
-import  multiprocessing, time
+import  src.Telegram.Telegram as Telegram
 
 def searchInLBank():
     lbank=LBankAnalystMan.LBankAnalystMan()
-
+    lbank.updatePairs()
     lbank.findTokenWithGap()
     lbank.countVolume(240,60,True)
 def searchInGate():
     gateio=GateioAnalystMan.GateioAnalystMan()
+    gateio.updatePairs()
+    gateio.findTokenWithGap()
     gateio.countVolume(240,60,True)
-def searchVolume():
-    #lbank=LBankAnalystMan.LBankAnalystMan()
-    #lbank.updatePairs()
-    #lbank.findTokenWithGap()
-    #gateio=GateioAnalystMan.GateioAnalystMan()
-    #gateio.updatePairs()
-    #gateio.findTokenWithGap()
-    processes=[]
-    process=multiprocessing.Process(target=searchInLBank, args=())
-    processes.append(process)
-    process.start()
-    time.sleep(1)
-    process=multiprocessing.Process(target=searchInGate, args=())
-    processes.append(process)
-    process.start()
-    for process in processes:
-        process.join()
+    
 if __name__=='__main__':
-    searchInLBank()
-    #gateio.countVolume(240,60,True)
+    print("To search in LBank tap 'l'")
+    print("To search in GateIo tap 'g'")
+    while True:
+        answer=input('Tap your answer\n')
+        if answer!='l' and answer!='g':
+            print('False entry, retry please')
+        else:
+            break
+    
+    if answer is "l":
+        searchInLBank()
+    elif answer is "g":
+        searchInGate()
+    Telegram.Telegram('Database').send_file()
