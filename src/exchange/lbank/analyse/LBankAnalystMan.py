@@ -107,7 +107,6 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
                     time.sleep(sleep*60)
                     now=datetime.now()
                     new=self._turnDictByAsset(orderMan.getUser_info_account()['data']['balances'])
-                    text+=f"{now}:\n"
                     for asset in new.keys():
                         if asset not in old:
                             amount=float(new[asset]['free'])+float(new[asset]['locked'])
@@ -121,7 +120,9 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
                             text+=f"{asset}: new amount of {amount} selled\n"
                     while True:
                         try:
-                            telegram.send_message(text)
+                            if text!="":
+                                text=f"{now}:\n"+text
+                                telegram.send_message(text)
                         except Exception:
                             print("Max telegram retries exceeded\nl'll sleep for 5 minutes and then try again")
                             time.sleep(300)

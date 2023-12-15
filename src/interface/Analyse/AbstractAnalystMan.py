@@ -190,7 +190,10 @@ class AbstractAnalystMan:
             marketCap=response["market_data"]['market_cap']['usd']
         except:
             marketCap=-1
-        cgRank=response['coingecko_rank']
+        if self.exchange=='mexc':
+            cgRank=-1
+        else:
+            cgRank=response['market_cap_rank']
         followers=response["community_data"]["twitter_followers"]
         listOnBinance=False
         for ticker in response['tickers']:
@@ -209,6 +212,8 @@ class AbstractAnalystMan:
                     pairs[pair]=copy[pair.split('_')[0].lower()]
                 except:
                     continue
+            print(listOfPair)
+            print(pairs)
             return pairs
     def turnToReadableDate(self,timestamp):
         readableDate = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
