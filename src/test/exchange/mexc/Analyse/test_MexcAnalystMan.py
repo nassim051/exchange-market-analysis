@@ -1,13 +1,14 @@
 import src.exchange.gateio.Analyse.GateioAnalystMan as GateioAnalystMan
 import src.exchange.mexc.Analyse.MexcAnalystMan as MexcAnalystMan
 import pytest
+from src.exchange.mexc.mexc_api_sdk.mexc_sdk.src.mexc_sdk import Spot
 
 
 mexcAnalystMan=MexcAnalystMan.MexcAnalystMan()
 @pytest.mark.skip
 def test_updatePairs():
     mexcAnalystMan.updatePairs()
-#@pytest.mark.skip  
+@pytest.mark.skip  
 def test_findTokenWithGap():
     mexcAnalystMan.findTokenWithGap()
 @pytest.mark.skip  
@@ -42,6 +43,7 @@ def test_multiple_transactions():
     nb, vol = mexcAnalystMan.countTransactionsWithGap(transactions, gap,0,0)
     assert abs(vol-11.80945) <=0.001
     assert nb==2
-@pytest.mark.skip   
+#@pytest.mark.skip   
 def  test_getTransactionHistory():
-    mexcAnalystMan.getTransactionHistory(15)
+    Spot(api_key='mx0vglvIlls4RraSCH',api_secret='7521f7de355d4c54aa5b34d6d0e21822').depth('BTCUSDT')
+    #mexcAnalystMan.getTransactionHistory(15)
