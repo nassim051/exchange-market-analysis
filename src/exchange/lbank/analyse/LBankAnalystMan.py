@@ -99,6 +99,7 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
             return readableDate.split(' ')[1] ###returns only hh:mm:ss
         
         def  getTransactionHistory(self,sleep):
+                volume=0
                 telegram=Telegram.Telegram(channel=self.exchange)
                 text=''
                 orderMan=newOrderMan.OrderMan(key=3)
@@ -106,22 +107,36 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
                 while True:
                     time.sleep(sleep*60)
                     now=datetime.now()
-                    new=self._turnDictByAsset(orderMan.getUser_info_account()['data']['balances'])
+                    while True:
+                        result=orderMan.getUser_info_account()
+                        if result.__contains__('data'):
+                            new=self._turnDictByAsset(result['data']['balances'])
+                            break
+                        else:
+                            time.sleep(15)
+
                     for asset in new.keys():
                         if asset not in old:
                             amount=float(new[asset]['free'])+float(new[asset]['locked'])
+                            if asset=='usdt':
+                                volume+=amount
                             text+=f"{asset}: new amount of {amount} bought\n"
                             break
                         if float(new[asset]['free'])+float(new[asset]['locked'])>float(old[asset]['free'])+float(old[asset]['locked']):
                             amount=float(new[asset]['free'])+float(new[asset]['locked'])-float(old[asset]['free'])-float(old[asset]['locked'])
+                            if asset=='usdt':
+                                volume+=amount
                             text+=f"{asset}: new amount of {amount} bought\n"
+
                         elif float(new[asset]['free'])+float(new[asset]['locked'])<float(old[asset]['free'])+float(old[asset]['locked']):
                             amount=float(old[asset]['free'])+float(old[asset]['locked'])-float(new[asset]['free'])-float(new[asset]['locked'])
+                            if asset=='usdt':
+                                volume+=amount
                             text+=f"{asset}: new amount of {amount} selled\n"
                     while True:
                         try:
                             if text!="":
-                                text=f"{now}:\n"+text
+                                text=f"{now}:\n{text} \nTotal volume: {volume}"
                                 telegram.send_message(text)
                         except Exception:
                             print("Max telegram retries exceeded\nl'll sleep for 5 minutes and then try again")
