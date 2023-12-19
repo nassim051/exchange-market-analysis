@@ -15,9 +15,7 @@ class AbstractAnalystMan:
         self.secondOrMili=secondOrMili
         self.volume={}
         self.nbProcess=nbProcess
-    @abstractmethod
-    def countVolume(self,nbOfFetch,timeUnity,addOnDb, *symbol):
-        pass
+
     
     @abstractmethod
     def botIsTrue(self,pair):
@@ -31,14 +29,13 @@ class AbstractAnalystMan:
             self.dataBase.insert_into_table('pair',(pair.symbol,self.exchange,pair.quantityAccuracy,pair.minTranQua,pair.priceAccuracy))
             
     def findTokenWithGap(self):
-            self.dataBase.renitialise("pairWithLiquidity")
+            #self.dataBase.renitialise("pairWithLiquidity")
             listOfPair=self.dataBase.select_from_table('pair',['symbol'],[f"exchange ='{self.exchange}'"])
             listOfPair= self.simplifiate( listOfPair)
             listOfPair=self.deleteFutures(listOfPair)
             cgPairs= self.getCgListOfPair(listOfPair)
             shitPairs=[]
             for pair in listOfPair:
-                print(pair)
                 orderBook=self.marketMan.getDepth(symbol=pair)
                 if orderBook==-1 or len(orderBook.asks)<3 or len(orderBook.bids)<3 :
                     continue

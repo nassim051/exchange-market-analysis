@@ -18,7 +18,7 @@ class MexcMarketMan(imm.IMarketMan):
     def getTrades(self, **d):
         startTime=int(d['time'])
         endTime=int(datetime.now().timestamp()*1000)
-        response=self.spot.agg_trades(symbol='BTCUSDT',options={"startTime":startTime,"endTime":endTime})
+        response=self.spot.agg_trades(symbol=d['symbol'],options={"startTime":startTime,"endTime":endTime})
         return modelTransaction.editJsonResponse(response)
     def getKline(self, **d):
         # Implement getKline method for GateMarketMan

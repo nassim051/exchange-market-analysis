@@ -23,8 +23,8 @@ if __name__=='__main__':
         else:
             break
     
-    if answer is "l":
+    if answer == "l":
         searchInLBank()
-    elif answer is "g":
+    elif answer == "g":
         searchInGate()
     Telegram.Telegram('Database').send_file()
