@@ -1,7 +1,7 @@
 import src.exchange.lbank.analyse.LBankAnalystMan as LBankAnalystMan
 import pytest
 import src.exchange.lbank.new_v2_inter.MarketMan as MarketMan
-
+import src.exchange.lbank.MarketMan as MarketMan2
 
 LBankAnalystMan=LBankAnalystMan.LBankAnalystMan()
 @pytest.mark.skip
@@ -43,4 +43,5 @@ def test_multiple_transactions():
     assert abs(vol-11.80945) <=0.001
     assert nb==2
 def test_getTransactionHistory():
+    #print(MarketMan2.MarketMan().getTicker(symbol='bitcoin_usdt')['data'][0]['ticker']['latest'])
     LBankAnalystMan.getTransactionHistory(15)

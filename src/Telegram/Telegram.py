@@ -6,8 +6,11 @@ class Telegram:
             self.token='6782346013:AAEGp1yyfrDOahxFrFxfGAtpz-xd_tQ9Jb4'
         elif channel=='gateio':
             self.token='6864729802:AAF44BBdieBlGdMprIKXkxdNV-51QBm7abc'
+        elif channel=='mexc':
+            self.token='6680399656:AAEG_eVUqtBEcre2V9mpv-8nH79WB3vbCO8'
         elif channel=='Database':
-            self.token="6703631441:AAEpw1kuglpXm2gHDVdIDFOul7IO4LbPpLg"            
+            self.token="6703631441:AAEpw1kuglpXm2gHDVdIDFOul7IO4LbPpLg"    
+                
 
     def send_message(self, text):
         url = f"https://api.telegram.org/bot{self.token}/sendMessage?chat_id={self.botUserName}&text={text}"

@@ -15,9 +15,16 @@ def test_getTrades():
     response=MarketMan.MarketMan().getTrades(symbol='btc_usdt',size='600')
     print(response)
 
-
+@pytest.mark.skip
 def test_listOrders():
     orderMan=OrderMan.OrderMan().getTransaction_history(symbol='btc_usdt',current_page=1,page_length=2)
     ordersMan=OrdersMan.Orders().getHistTran(symbol='btc_usdt',current_page=1,page_length=2)
     print(f"V2: {orderMan}")
     print(f"normal: {ordersMan}")
+
+
+
+#@pytest.mark.skip
+def test_getTicker():
+    response=MarketMan.MarketMan().getTicker(symbol='sos_usdt')
+    print(response)

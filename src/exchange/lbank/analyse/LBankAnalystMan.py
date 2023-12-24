@@ -105,7 +105,7 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
                 orderMan=newOrderMan.OrderMan(key=3)
                 old=self._turnDictByAsset(orderMan.getUser_info_account()['data']['balances'])
                 while True:
-                    time.sleep(sleep*60)
+                    time.sleep(15*60)
                     now=datetime.now()
                     while True:
                         result=orderMan.getUser_info_account()
@@ -118,20 +118,26 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
                     for asset in new.keys():
                         if asset not in old:
                             amount=float(new[asset]['free'])+float(new[asset]['locked'])
-                            if asset=='usdt':
-                                volume+=amount
+                            if asset!='usdt':
+                                result=self.marketMan.getTicker(symbol=asset+'_usdt')
+                                if result.__contains__('data'):
+                                    volume+=amount*float(result['data'][0]['ticker']['latest'])
                             text+=f"{asset}: new amount of {amount} bought\n"
-                            break
+                            continue
                         if float(new[asset]['free'])+float(new[asset]['locked'])>float(old[asset]['free'])+float(old[asset]['locked']):
                             amount=float(new[asset]['free'])+float(new[asset]['locked'])-float(old[asset]['free'])-float(old[asset]['locked'])
-                            if asset=='usdt':
-                                volume+=amount
+                            if asset!='usdt':
+                                result=self.marketMan.getTicker(symbol=asset+'_usdt')
+                                if result.__contains__('data'):
+                                    volume+=amount*float(result['data'][0]['ticker']['latest'])
                             text+=f"{asset}: new amount of {amount} bought\n"
 
                         elif float(new[asset]['free'])+float(new[asset]['locked'])<float(old[asset]['free'])+float(old[asset]['locked']):
                             amount=float(old[asset]['free'])+float(old[asset]['locked'])-float(new[asset]['free'])-float(new[asset]['locked'])
-                            if asset=='usdt':
-                                volume+=amount
+                            if asset!='usdt':
+                                result=self.marketMan.getTicker(symbol=asset+'_usdt')
+                                if result.__contains__('data'):
+                                    volume+=amount*float(result['data'][0]['ticker']['latest'])
                             text+=f"{asset}: new amount of {amount} selled\n"
                     while True:
                         try:

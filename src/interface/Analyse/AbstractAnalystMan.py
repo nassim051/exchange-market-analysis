@@ -209,8 +209,6 @@ class AbstractAnalystMan:
                     pairs[pair]=copy[pair.split('_')[0].lower()]
                 except:
                     continue
-            print(listOfPair)
-            print(pairs)
             return pairs
     def turnToReadableDate(self,timestamp):
         readableDate = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')

@@ -7,7 +7,7 @@ gateioAnalystMan=GateioAnalystMan.GateioAnalystMan()
 @pytest.mark.skip
 def test_updatePairs():
     gateioAnalystMan.updatePairs()
-#@pytest.mark.skip  
+@pytest.mark.skip  
 def test_findTokenWithGap():
     gateioAnalystMan.findTokenWithGap()
 @pytest.mark.skip  

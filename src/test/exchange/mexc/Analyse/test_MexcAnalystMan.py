@@ -1,4 +1,3 @@
-import src.exchange.gateio.Analyse.GateioAnalystMan as GateioAnalystMan
 import src.exchange.mexc.Analyse.MexcAnalystMan as MexcAnalystMan
 import pytest
 from src.exchange.mexc.mexc_api_sdk.mexc_sdk.src.mexc_sdk import Spot
@@ -45,5 +44,6 @@ def test_multiple_transactions():
     assert nb==2
 #@pytest.mark.skip   
 def  test_getTransactionHistory():
-    Spot(api_key='mx0vglvIlls4RraSCH',api_secret='7521f7de355d4c54aa5b34d6d0e21822').depth('BTCUSDT')
-    #mexcAnalystMan.getTransactionHistory(15)
+    #print(Spot(api_key='mx0vglvIlls4RraSCH',api_secret='7521f7de355d4c54aa5b34d6d0e21822').account_info())
+    #print(Spot(api_key='mx0vglvIlls4RraSCH',api_secret='7521f7de355d4c54aa5b34d6d0e21822').all_orders(symbol='HUAHUA'+'USDT',options={'startTime':1703105868000}))
+    mexcAnalystMan.getTransactionHistory(15)
