@@ -6,9 +6,13 @@ bot_chatId = "1679040280"
 
 
 
+#@pytest.mark.skip
+def test_sendingMessage():
+    telegram=Telegram.Telegram(channel='gateio')
+    telegram.send_message(text='hello brooooooooooooooaaaaaaahhhhh')
 
 @pytest.mark.skip
-def test_sendingMessage():
+def test_zipAndUnzip():
     os.remove("testZip")
     return
     #text=zipfile.ZipFile("testZip","w",compression=zipfile.ZIP_DEFLATED)

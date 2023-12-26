@@ -2,7 +2,7 @@ import src.exchange.gateio.Analyse.GateioAnalystMan as GateioAnalystMan
 import src.exchange.lbank.analyse.LBankAnalystMan as LBankAnalystMan
 import src.exchange.mexc.Analyse.MexcAnalystMan as MexcAnalystMan
 import  src.Telegram.Telegram as Telegram
-
+import sys
 def searchInLBank():
     lbank=LBankAnalystMan.LBankAnalystMan()
     lbank.updatePairs()
