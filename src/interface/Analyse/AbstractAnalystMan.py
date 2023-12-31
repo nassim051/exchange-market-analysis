@@ -103,7 +103,8 @@ class AbstractAnalystMan:
                 for th in threads:
                     th.join()
                 while True:
-                    if th.is_alive()==False:
+                    all_threads_finished = all(not th.is_alive() for th in threads)
+                    if all_threads_finished:
                         break
                     time.sleep(60)
             if addOnDb==True:
