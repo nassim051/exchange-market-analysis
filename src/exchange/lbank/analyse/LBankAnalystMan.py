@@ -114,7 +114,13 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
                             break
                         else:
                             time.sleep(15)
-
+                    for asset in old.keys():
+                        if asset not in new:
+                            amount=float(old[asset]['free'])+float(old[asset]['locked'])
+                            result=self.marketMan.getTicker(symbol=asset+'_usdt')
+                            if result.__contains__('data'):
+                                volume+=amount*float(result['data'][0]['ticker']['latest'])
+                            text+=f"{asset}: new amount of {amount} bought\n"
                     for asset in new.keys():
                         if asset not in old:
                             amount=float(new[asset]['free'])+float(new[asset]['locked'])

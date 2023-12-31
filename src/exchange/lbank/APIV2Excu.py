@@ -31,7 +31,7 @@ class APIV2Excu:
             self.apiKey=self.config.get("API","APIKEY5")
             privKey=self.config.get("priveKey","PriveKey5")
         
-        self.secrtkey=self.config.get("API","SECRTKEY")
+       # self.secrtkey=self.config.get("API","SECRTKEY")
         self.privKey="-----BEGIN RSA PRIVATE KEY-----\n"+privKey+"\n-----END RSA PRIVATE KEY-----"
         # print(self.privKey)
         self.signMethod=self.config.get("SIGNMETHOD","signmethod")
