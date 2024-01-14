@@ -82,44 +82,43 @@ class AbstractAnalystMan:
                             print(f"""We detect in {symbol} bids a trade of {trans.price*trans.qty} the price is {trans.price}\n volume: {self.volume[symbol]['volume']} asks: {self.volume[symbol]['asks']} bids:{self.volume[symbol]['bids']}""")
                             self.updateTransactionsWithGap(symbol,0.01)
 
-
+    def createThread(self, nbOfFetch,timeUnity,addOnDb, symbol,key):
+                print(f"process number {key} symbol : {symbol}")
+                self.volume={}
+                for sym in symbol: 
+                    self.volume[sym]={'volume': 0, 'asks': 0, 'bids': 0,'transactions':[],'nbTransactionGap':0,'volumeTransactionGap':0}
+                nbOfTenUnit=int(nbOfFetch/10)
+                for index in range(nbOfTenUnit):
+                    timeNow=datetime.now()
+                    threads=[]
+                    for i in range(10):
+                        for j in range(1,len(self.volume)+1):
+                            th=Untiltime(self.calculVolume,timeNow+timedelta(0,timeUnity*i+1.5*j),args=(symbol[j-1],timeNow+timedelta(0,timeUnity*i+1.5*j),timeUnity,key))
+                            th.start()
+                            threads.append(th)  # Add the thread to the list            
+                        #  print(f"{timeNow+timedelta(0,timeUnity*i+1.5*j)}  {symbol[j-1]}")
+                    for th in threads:
+                        th.join()
+                    while True:
+                        all_threads_finished = all(not th.is_alive() for th in threads)
+                        if all_threads_finished:
+                            break
+                        time.sleep(60)
+                if addOnDb==True:
+                    oldSymbol=self.dataBase.select_from_table('volume4h',['symbol'],[f'exchange="{self.exchange}"'])
+                    oldSymbol=self.dataBase.turnToList(oldSymbol)
+                    for vol in self.volume.keys():
+                        if oldSymbol.__contains__(vol)==False:
+                            self.dataBase.insert_into_table('volume4h',(vol,self.exchange,0,0,0,"",0,0))
+                    for vol in self.volume.keys():
+                        self.dataBase.increment('volume4h',column='volume',newValue=str(self.volume[vol]['volume']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
+                        self.dataBase.increment('volume4h',column='asks',newValue=str(self.volume[vol]['asks']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
+                        self.dataBase.increment('volume4h',column='bids',newValue=str(self.volume[vol]['bids']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
+                        self.dataBase.increment('volume4h',column='nbTransactionGap',newValue=str(self.volume[vol]['nbTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
+                        self.dataBase.increment('volume4h',column='volumeTransactionGap',newValue=str(self.volume[vol]['volumeTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])                                   
+                        self.dataBase.increment('volume4h',column='transactions',newValue='"'+str(self.volume[vol]['transactions'])+'"',condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
 
     def countVolume(self,nbOfFetch,timeUnity,addOnDb, symbol=None):
-        def createThread(nbOfFetch,timeUnity,addOnDb, symbol,key):
-            print(f"process number {key} symbol : {symbol}")
-            self.volume={}
-            for sym in symbol: 
-                self.volume[sym]={'volume': 0, 'asks': 0, 'bids': 0,'transactions':[],'nbTransactionGap':0,'volumeTransactionGap':0}
-            nbOfTenUnit=int(nbOfFetch/10)
-            for index in range(nbOfTenUnit):
-                timeNow=datetime.now()
-                threads=[]
-                for i in range(10):
-                    for j in range(1,len(self.volume)+1):
-                        th=Untiltime(self.calculVolume,timeNow+timedelta(0,timeUnity*i+1.5*j),args=(symbol[j-1],timeNow+timedelta(0,timeUnity*i+1.5*j),timeUnity,key))
-                        th.start()
-                        threads.append(th)  # Add the thread to the list            
-                    #  print(f"{timeNow+timedelta(0,timeUnity*i+1.5*j)}  {symbol[j-1]}")
-                for th in threads:
-                    th.join()
-                while True:
-                    all_threads_finished = all(not th.is_alive() for th in threads)
-                    if all_threads_finished:
-                        break
-                    time.sleep(60)
-            if addOnDb==True:
-                oldSymbol=self.dataBase.select_from_table('volume4h',['symbol'],[f'exchange="{self.exchange}"'])
-                oldSymbol=self.dataBase.turnToList(oldSymbol)
-                for vol in self.volume.keys():
-                    if oldSymbol.__contains__(vol)==False:
-                        self.dataBase.insert_into_table('volume4h',(vol,self.exchange,0,0,0,"",0,0))
-                for vol in self.volume.keys():
-                    self.dataBase.increment('volume4h',column='volume',newValue=str(self.volume[vol]['volume']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
-                    self.dataBase.increment('volume4h',column='asks',newValue=str(self.volume[vol]['asks']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
-                    self.dataBase.increment('volume4h',column='bids',newValue=str(self.volume[vol]['bids']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
-                    self.dataBase.increment('volume4h',column='nbTransactionGap',newValue=str(self.volume[vol]['nbTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
-                    self.dataBase.increment('volume4h',column='volumeTransactionGap',newValue=str(self.volume[vol]['volumeTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])                                   
-                    self.dataBase.increment('volume4h',column='transactions',newValue='"'+str(self.volume[vol]['transactions'])+'"',condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
         if symbol is None:
             symbol=self.dataBase.select_from_table('pairwithliquidity',['symbol'],conditions=[f"exchange='{self.exchange}'","listOnBinance = false"])            
             symbol=self.dataBase.turnToList(symbol)
@@ -137,7 +136,7 @@ class AbstractAnalystMan:
             # Create four processes
             processes = []
             for args in arguments:
-                process = multiprocessing.Process(target=createThread, args=(args[0],args[1],args[2],args[3],args[4]))
+                process = multiprocessing.Process(target=self.createThread, args=(args[0],args[1],args[2],args[3],args[4]))
                 processes.append(process)
                 process.start()
                 time.sleep(60)
