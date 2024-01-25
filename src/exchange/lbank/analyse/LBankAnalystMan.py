@@ -102,7 +102,7 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
                 volume=0
                 telegram=Telegram.Telegram(channel=self.exchange)
                 text=''
-                orderMan=newOrderMan.OrderMan(key=3)
+                orderMan=newOrderMan.OrderMan(key=1)
                 old=self._turnDictByAsset(orderMan.getUser_info_account()['data']['balances'])
                 while True:
                     time.sleep(15*60)
