@@ -23,13 +23,14 @@ class AbstractAnalystMan:
 
 
     def updatePairs(self):
+        self.dataBase.renitialise("pair")
         pairList=self.basicDataMan.getAccuracyInfo()
         for pair in pairList:
             print(pair.symbol)
             self.dataBase.insert_into_table('pair',(pair.symbol,self.exchange,pair.quantityAccuracy,pair.minTranQua,pair.priceAccuracy))
             
     def findTokenWithGap(self):
-            #self.dataBase.renitialise("pairWithLiquidity")
+            self.dataBase.renitialise("pairWithLiquidity")
             listOfPair=self.dataBase.select_from_table('pair',['symbol'],[f"exchange ='{self.exchange}'"])
             listOfPair= self.simplifiate( listOfPair)
             listOfPair=self.deleteFutures(listOfPair)
@@ -119,6 +120,7 @@ class AbstractAnalystMan:
                         self.dataBase.increment('volume4h',column='transactions',newValue='"'+str(self.volume[vol]['transactions'])+'"',condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
 
     def countVolume(self,nbOfFetch,timeUnity,addOnDb, symbol=None):
+        self.dataBase.renitialise("volume4h")
         if symbol is None:
             symbol=self.dataBase.select_from_table('pairwithliquidity',['symbol'],conditions=[f"exchange='{self.exchange}'","listOnBinance = false"])            
             symbol=self.dataBase.turnToList(symbol)
