@@ -10,7 +10,6 @@ class AbstractAnalystMan:
         self.basicDataMan = basicDataMan
         self.marketMan= marketMan
         self.exchange=exchange
-        self.dataBase=DbManager.DbManager()
         self.cg = CoinGeckoAPI()
         self.secondOrMili=secondOrMili
         self.volume={}
@@ -23,15 +22,17 @@ class AbstractAnalystMan:
 
 
     def updatePairs(self):
-        self.dataBase.renitialise("pair")
+        dataBase=DbManager.DbManager()
+        dataBase.renitialise("pair")
         pairList=self.basicDataMan.getAccuracyInfo()
         for pair in pairList:
             print(pair.symbol)
-            self.dataBase.insert_into_table('pair',(pair.symbol,self.exchange,pair.quantityAccuracy,pair.minTranQua,pair.priceAccuracy))
+            dataBase.insert_into_table('pair',(pair.symbol,self.exchange,pair.quantityAccuracy,pair.minTranQua,pair.priceAccuracy))
             
     def findTokenWithGap(self):
-            self.dataBase.renitialise("pairWithLiquidity")
-            listOfPair=self.dataBase.select_from_table('pair',['symbol'],[f"exchange ='{self.exchange}'"])
+            dataBase=DbManager.DbManager()
+            dataBase.renitialise("pairWithLiquidity")
+            listOfPair=dataBase.select_from_table('pair',['symbol'],[f"exchange ='{self.exchange}'"])
             listOfPair= self.simplifiate( listOfPair)
             listOfPair=self.deleteFutures(listOfPair)
             cgPairs= self.getCgListOfPair(listOfPair)
@@ -52,7 +53,7 @@ class AbstractAnalystMan:
                     else:
                         cgVolume,marketCap,cgRank,listOnBinance,followers=None,None,None,False,None
                     bot = 1 if self.botIsTrue(pair) else 0
-                    self.dataBase.insert_into_table('pairWithLiquidity',(pair,self.exchange, pourcentageGap, liquidity,cgVolume,marketCap,cgRank,listOnBinance, ratio, followers, bot))
+                    dataBase.insert_into_table('pairWithLiquidity',(pair,self.exchange, pourcentageGap, liquidity,cgVolume,marketCap,cgRank,listOnBinance, ratio, followers, bot))
                     print(pair,pourcentageGap)
 
 
@@ -84,6 +85,7 @@ class AbstractAnalystMan:
                             self.updateTransactionsWithGap(symbol,0.01)
 
     def createThread(self, nbOfFetch,timeUnity,addOnDb, symbol,key):
+                dataBase=DbManager.DbManager()
                 print(f"process number {key} symbol : {symbol}")
                 self.volume={}
                 for sym in symbol: 
@@ -106,26 +108,27 @@ class AbstractAnalystMan:
                             break
                         time.sleep(60)
                 if addOnDb==True:
-                    oldSymbol=self.dataBase.select_from_table('volume4h',['symbol'],[f'exchange="{self.exchange}"'])
-                    oldSymbol=self.dataBase.turnToList(oldSymbol)
+                    oldSymbol=dataBase.select_from_table('volume4h',['symbol'],[f'exchange="{self.exchange}"'])
+                    oldSymbol=dataBase.turnToList(oldSymbol)
                     for vol in self.volume.keys():
                         if oldSymbol.__contains__(vol)==False:
-                            self.dataBase.insert_into_table('volume4h',(vol,self.exchange,0,0,0,"",0,0))
+                            dataBase.insert_into_table('volume4h',(vol,self.exchange,0,0,0,"",0,0))
                     for vol in self.volume.keys():
-                        self.dataBase.increment('volume4h',column='volume',newValue=str(self.volume[vol]['volume']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
-                        self.dataBase.increment('volume4h',column='asks',newValue=str(self.volume[vol]['asks']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
-                        self.dataBase.increment('volume4h',column='bids',newValue=str(self.volume[vol]['bids']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
-                        self.dataBase.increment('volume4h',column='nbTransactionGap',newValue=str(self.volume[vol]['nbTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
-                        self.dataBase.increment('volume4h',column='volumeTransactionGap',newValue=str(self.volume[vol]['volumeTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])                                   
-                        self.dataBase.increment('volume4h',column='transactions',newValue='"'+str(self.volume[vol]['transactions'])+'"',condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
+                        dataBase.increment('volume4h',column='volume',newValue=str(self.volume[vol]['volume']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
+                        dataBase.increment('volume4h',column='asks',newValue=str(self.volume[vol]['asks']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
+                        dataBase.increment('volume4h',column='bids',newValue=str(self.volume[vol]['bids']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
+                        dataBase.increment('volume4h',column='nbTransactionGap',newValue=str(self.volume[vol]['nbTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
+                        dataBase.increment('volume4h',column='volumeTransactionGap',newValue=str(self.volume[vol]['volumeTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])                                   
+                        dataBase.increment('volume4h',column='transactions',newValue='"'+str(self.volume[vol]['transactions'])+'"',condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
 
     def countVolume(self,nbOfFetch,timeUnity,addOnDb, symbol=None):
-        self.dataBase.renitialise("volume4h")
+        dataBase=DbManager.DbManager()
+        dataBase.renitialise("volume4h")
         if symbol is None:
-            symbol=self.dataBase.select_from_table('pairwithliquidity',['symbol'],conditions=[f"exchange='{self.exchange}'","listOnBinance = false"])            
-            symbol=self.dataBase.turnToList(symbol)
-            symbolWIthVolume=self.dataBase.select_from_table('volume4h',['symbol'],conditions=[f"exchange='{self.exchange}'"])
-            symbolWIthVolume=self.dataBase.turnToList(symbolWIthVolume)
+            symbol=dataBase.select_from_table('pairwithliquidity',['symbol'],conditions=[f"exchange='{self.exchange}'","listOnBinance = false"])            
+            symbol=dataBase.turnToList(symbol)
+            symbolWIthVolume=dataBase.select_from_table('volume4h',['symbol'],conditions=[f"exchange='{self.exchange}'"])
+            symbolWIthVolume=dataBase.turnToList(symbolWIthVolume)
             for sym in symbolWIthVolume:
                 if sym in symbol:
                     symbol.remove(sym)
@@ -148,7 +151,7 @@ class AbstractAnalystMan:
             print(f"End of the first loop here are the remaining symbols:\n{symbol}")
             if len(symbol)==0:
                 break
-        self.dataBase.close()
+        dataBase.close()
 
 
 
