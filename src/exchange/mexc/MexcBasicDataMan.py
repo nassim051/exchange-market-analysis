@@ -2,7 +2,7 @@
 import src.interface.IBasicDataMan as ibdm
 from src.exchange.mexc.mexc_api_sdk.mexc_sdk.src.mexc_sdk import Spot
 import src.exchange.mexc.models.TradingPairs as modelTradingPairs
-
+import time
 class MexcBasicDataMan(ibdm.IBasicDataMan):
     def __init__(self):
         self.spot=Spot()
@@ -12,7 +12,15 @@ class MexcBasicDataMan(ibdm.IBasicDataMan):
         pass
 
     def getAccuracyInfo(self):
-        response=Spot().exchange_info()
+        while True:
+            try:
+                response=Spot().exchange_info()    
+            except Exception:
+                print('An exeption occured:'+Exception)
+                print("l'm going to sleep for 15 seconde")
+                time.sleep(15)
+            else:
+                break
         return modelTradingPairs.editJsonResponse(response)
     
     def getRatio(self, **d):

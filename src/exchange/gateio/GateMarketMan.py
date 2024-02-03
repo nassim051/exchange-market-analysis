@@ -3,7 +3,7 @@ import src.interface.IMarketMan as imm
 import src.exchange.gateio.models.OrderBook as modelOrderBook
 import src.exchange.gateio.models.Transaction as modelTransaction
 import src.exchange.gateio.models.My_trades as My_trades
-
+import time
 from src.exchange.gateio.github.gate_api.api_client import ApiClient
 from src.exchange.gateio.github.gate_api.exceptions import ApiTypeError, ApiValueError  # noqa: F401
 
@@ -61,7 +61,15 @@ class GateMarketMan(imm.IMarketMan):
                  returns the request thread.
         """
         d['_return_http_data_only'] = True
-        response= self._list_trades_with_http_info(currency_pair, **d)  # noqa: E501
+        while True:
+            try:
+                response= self._list_trades_with_http_info(currency_pair, **d)  # noqa: E501
+            except Exception:
+                print('An exeption occured:'+Exception)
+                print("l'm going to sleep for 15 seconde")
+                time.sleep(15)
+            else:
+                break
         return(modelTransaction.editJsonResponse(response))
     def _list_trades_with_http_info(self, currency_pair, **kwargs):  # noqa: E501
         """Retrieve market trades  # noqa: E501
@@ -221,7 +229,15 @@ class GateMarketMan(imm.IMarketMan):
                  returns the request thread.
         """
         d['_return_http_data_only'] = True
-        response= self._list_order_book_with_http_info(currency_pair, **d)  # noqa: E501
+        while True:
+            try:
+                response= self._list_order_book_with_http_info(currency_pair, **d)  # noqa: E501
+            except Exception:
+                print('An exeption occured:'+Exception)
+                print("l'm going to sleep for 15 seconde")
+                time.sleep(15)
+            else:
+                break
         return modelOrderBook.editJsonResponse(response)
     def _list_order_book_with_http_info(self, currency_pair, **d):  # noqa: E501
         """Retrieve order book  # noqa: E501

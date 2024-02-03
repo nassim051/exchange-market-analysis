@@ -2,7 +2,7 @@
 import pytest, os, sys, six
 import src.interface.IBasicDataMan as ibdm
 import src.exchange.gateio.models.TradingPairs as modelTradingPairs
-
+import time
 from .github.gate_api.api_client import ApiClient
 from .github.gate_api.exceptions import ApiTypeError, ApiValueError  # noqa: F401
 
@@ -40,7 +40,15 @@ class GateBasicDataMan(ibdm.IBasicDataMan):
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
-        response= self._list_currency_pairs_with_http_info(**kwargs)  # noqa: E501
+        while True:
+                try:
+                    response= self._list_currency_pairs_with_http_info(**kwargs)  # noqa: E501            
+                except Exception:
+                    print('An exeption occured:'+Exception)
+                    print("l'm going to sleep for 15 seconde")
+                    time.sleep(15)
+                else:
+                    break
         return modelTradingPairs.editJsonResponse(response)
     
 
