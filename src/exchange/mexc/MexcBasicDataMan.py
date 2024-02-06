@@ -15,8 +15,8 @@ class MexcBasicDataMan(ibdm.IBasicDataMan):
         while True:
             try:
                 response=Spot().exchange_info()    
-            except Exception:
-                print('An exeption occured:'+Exception)
+            except Exception as e:
+                print('An exeption occured:'+str(e))
                 print("l'm going to sleep for 15 seconde")
                 time.sleep(15)
             else:

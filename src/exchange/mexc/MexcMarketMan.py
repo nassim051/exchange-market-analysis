@@ -22,8 +22,8 @@ class MexcMarketMan(imm.IMarketMan):
         while True:
             try:
                 response=self.spot.agg_trades(symbol=d['symbol'],options={"startTime":startTime,"endTime":endTime})
-            except Exception:
-                print('An exeption occured:'+Exception)
+            except Exception as e:
+                print('An exeption occured:'+str(e))
                 print("l'm going to sleep for 15 seconde")
                 time.sleep(15)
             else:
@@ -36,8 +36,8 @@ class MexcMarketMan(imm.IMarketMan):
         while True:
             try:
                 response=self.spot.depth(symbol=d['symbol'],options={'limit':10})
-            except Exception:
-                print('An exeption occured:'+Exception)
+            except Exception as e:
+                print('An exeption occured:'+str(e))
                 print("l'm going to sleep for 15 seconde")
                 time.sleep(15)
             else:

@@ -12,7 +12,7 @@ import src.Telegram.Telegram as Telegram
 class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
         def __init__(self,key=1):
                 self.key=key
-                super().__init__(BasicDataMan.BaseConfigMan(),MarketMan.MarketMan(),'LBank',1000,1)
+                super().__init__(BasicDataMan.BaseConfigMan(),MarketMan.MarketMan(),'LBank',1000,4)
 
  
         def deleteFutures(self, pairs):
@@ -56,11 +56,7 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
             return averagePrice
             
         def botIsTrue(self,pair):
-            response=OrderMan.Orders(self.key).getOpenOrder(symbol=pair,current_page=1,page_length=15)
-            bot=True
-            if response['error_code']== 10008:
-                bot=False
-            return bot
+            return 0
         ###helper functions
         def muchTypeWithPeriod(self, period):
             if(period=='minute1'): return 1
@@ -150,8 +146,9 @@ class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
                             if text!="":
                                 text=f"{now}:\n{text} \nTotal volume: {volume}"
                                 telegram.send_message(text)
-                        except Exception:
-                            print("Max telegram retries exceeded\nl'll sleep for 5 minutes and then try again")
+                        except Exception as e:
+                            print('An exeption occured:'+str(e)) 
+                            print("l'll sleep for 5 minutes and then try again")
                             time.sleep(300)
                         else:
                             break

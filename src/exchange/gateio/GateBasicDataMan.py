@@ -43,8 +43,8 @@ class GateBasicDataMan(ibdm.IBasicDataMan):
         while True:
                 try:
                     response= self._list_currency_pairs_with_http_info(**kwargs)  # noqa: E501            
-                except Exception:
-                    print('An exeption occured:'+Exception)
+                except Exception as e:
+                    print('An exeption occured:'+str(e))
                     print("l'm going to sleep for 15 seconde")
                     time.sleep(15)
                 else:

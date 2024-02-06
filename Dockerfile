@@ -1,6 +1,9 @@
 FROM python
 WORKDIR /app
 COPY . /app
-RUN pip install pytest six
+RUN apt-get update \
+    && apt-get install -y nodejs npm \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip install pytest six pycoingecko  date_time_event python-dateutil pycryptodome jsii  
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 CMD ["python3","src/main.py"]

@@ -64,8 +64,8 @@ class GateMarketMan(imm.IMarketMan):
         while True:
             try:
                 response= self._list_trades_with_http_info(currency_pair, **d)  # noqa: E501
-            except Exception:
-                print('An exeption occured:'+Exception)
+            except Exception as e:
+                print('An exeption occured:'+str(e))
                 print("l'm going to sleep for 15 seconde")
                 time.sleep(15)
             else:
@@ -232,8 +232,8 @@ class GateMarketMan(imm.IMarketMan):
         while True:
             try:
                 response= self._list_order_book_with_http_info(currency_pair, **d)  # noqa: E501
-            except Exception:
-                print('An exeption occured:'+Exception)
+            except Exception as e:
+                print('An exeption occured:'+str(e))
                 print("l'm going to sleep for 15 seconde")
                 time.sleep(15)
             else:

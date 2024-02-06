@@ -10,6 +10,8 @@ def searchInLBank():
     lbank.countVolume(240,60,True)
 def searchInGate():
     gateio=GateioAnalystMan.GateioAnalystMan()
+    gateio.updatePairs()
+    gateio.findTokenWithGap()
     gateio.countVolume(240,60,True)
 def searchInMexc():
     mexc=MexcAnalystMan.MexcAnalystMan()
