@@ -1,7 +1,6 @@
 import requests, zipfile, os
 class Telegram:
     def __init__(self,channel):
-#        self.botUserName='1679040280'
         self.botUserName='6595500268'
         if channel=='LBank':
             #self.token='6782346013:AAEGp1yyfrDOahxFrFxfGAtpz-xd_tQ9Jb4'
@@ -16,7 +15,8 @@ class Telegram:
             self.token='6761479251:AAG-PU2TyWpCpgfYLaDbCzbv_9R7JZqGYkM'
 
         elif channel=='Database':
-            self.token="6703631441:AAEpw1kuglpXm2gHDVdIDFOul7IO4LbPpLg"    
+            self.botUserName='1679040280'
+            self.token="6747769758:AAF9Df4rd3okLXE_RjLPds8zb25nG4o5jjM"    
                 
 
     def send_message(self, text):
@@ -29,7 +29,7 @@ class Telegram:
         text=zipfile.ZipFile("Nassim_searchResult","w",compression=zipfile.ZIP_DEFLATED)
         text.write('src/db/bot.db',arcname=os.path.basename('src/db/bot.db'),compress_type=zipfile.ZIP_DEFLATED)
         text.close()
-        a =open('searchResult','rb')
+        a =open('Nassim_searchResult','rb')
         send_document = 'https://api.telegram.org/bot' + self.token +'/sendDocument?'
         data = {
         'chat_id': self.botUserName,
@@ -39,4 +39,3 @@ class Telegram:
         print("Response: ")
         r = requests.post(send_document, data=data, files={'document': a},stream=True)
         print(r.json())
-        os.remove("testZip")

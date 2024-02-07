@@ -20,6 +20,8 @@ def searchInMexc():
     mexc.countVolume(240,60,True)    
     
 if __name__=='__main__':
+    Telegram.Telegram('Database').send_file()
+
     print("To search in LBank tap 'l'")
     print("To search in GateIo tap 'g'")
     print("To search in GateIo tap 'm'")
