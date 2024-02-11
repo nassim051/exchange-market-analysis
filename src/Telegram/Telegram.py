@@ -26,10 +26,10 @@ class Telegram:
     
     def send_file(self): ##it zips the file before sending it
         print("Sending file to telegram")
-        text=zipfile.ZipFile("Nassim_searchResult","w",compression=zipfile.ZIP_DEFLATED)
+        text=zipfile.ZipFile("searchResult","w",compression=zipfile.ZIP_DEFLATED)
         text.write('src/db/bot.db',arcname=os.path.basename('src/db/bot.db'),compress_type=zipfile.ZIP_DEFLATED)
         text.close()
-        a =open('Nassim_searchResult','rb')
+        a =open('searchResult','rb')
         send_document = 'https://api.telegram.org/bot' + self.token +'/sendDocument?'
         data = {
         'chat_id': self.botUserName,
