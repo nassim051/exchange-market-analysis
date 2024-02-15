@@ -4,6 +4,8 @@ from pycoingecko import CoinGeckoAPI
 import time, multiprocessing
 from date_time_event import Untiltime
 from datetime import datetime, timedelta 
+import copy
+
 class AbstractAnalystMan:
     def __init__(self, basicDataMan, marketMan,exchange,secondOrMili,nbProcess):
         # Initialize common attributes or perform common tasks
@@ -14,6 +16,7 @@ class AbstractAnalystMan:
         self.secondOrMili=secondOrMili
         self.volume={}
         self.nbProcess=nbProcess
+        self.process=[]
 
     
     @abstractmethod
@@ -58,13 +61,14 @@ class AbstractAnalystMan:
 
 
     def calculVolume(self,symbol,timeNow,timeUnity,key):
-        bookOrder=self.marketMan.getDepth(symbol=symbol)
+        bookOrder=self.process[key-1]['marketMan'].getDepth(symbol=symbol)
         if bookOrder==-1:
             print(-1)
             return
         time.sleep(timeUnity)
         timeNow = str( timeNow.timestamp()*self.secondOrMili  ).split( "." )[ 0 ]
-        transaction= self.marketMan.getTrades(symbol=symbol,size=600,time=timeNow )
+        transaction= self.process[key-1]['marketMan'].getTrades(symbol=symbol,size=600,time=timeNow )
+        self.volume[symbol]['gap'].append(self.getGap(bookOrder.asks,bookOrder.bids))
         for order in bookOrder.asks:
                 for trans in transaction:
                     if trans.price==float(order[0]) :
@@ -85,6 +89,7 @@ class AbstractAnalystMan:
                             self.updateTransactionsWithGap(symbol,0.01)
 
     def createThread(self, nbOfFetch,timeUnity,addOnDb, symbol,key):
+                self.process.append({'basicDataMan':copy.copy(self.basicDataMan),'marketMan':copy.copy(self.marketMan)})
                 dataBase=DbManager.DbManager()
                 print(f"process number {key} symbol : {symbol}")
                 self.volume={}
@@ -114,6 +119,8 @@ class AbstractAnalystMan:
                         if oldSymbol.__contains__(vol)==False:
                             dataBase.insert_into_table('volume4h',(vol,self.exchange,0,0,0,"",0,0))
                     for vol in self.volume.keys():
+                        gap=self.getGapFromVolume(self.volume[vol]['gap'])
+                        dataBase.increment('volume4h',column='gap',newValue=gap,condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
                         dataBase.increment('volume4h',column='volume',newValue=str(self.volume[vol]['volume']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
                         dataBase.increment('volume4h',column='asks',newValue=str(self.volume[vol]['asks']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
                         dataBase.increment('volume4h',column='bids',newValue=str(self.volume[vol]['bids']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
@@ -157,6 +164,24 @@ class AbstractAnalystMan:
 
 
 ## helpers
+    def getGapFromVolume(self,gaps):
+        total=len(gaps)
+        sum=0
+        for gap in gaps:
+            sum+=gap
+        return sum/total if total!=0 else  0
+    def getGap(self,asks,bids):
+        sell=0
+        buy=0
+        for ask in asks:
+            if ask[0] * ask[1] > 10 :
+                sell = ask[0] * ask[1] 
+                break
+        for bid in bids:
+            if bid[0] * bid[1] > 10:
+                buy = bid[0] * bid[1] 
+                break
+        return (sell-buy)/sell if(sell!=0 and buy!=0) else  0
     def _calculSumOfOrderAndHumanActivityRatio(self,orderBook):
         prix=[]
         ratio=0
