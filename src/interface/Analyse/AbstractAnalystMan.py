@@ -46,9 +46,9 @@ class AbstractAnalystMan:
                     continue
                 liquidity,ratio=self._calculSumOfOrderAndHumanActivityRatio(orderBook=orderBook)
                 try:
-                    gap=orderBook.asks[2][0]-orderBook.bids[2][0]
-                    pourcentageGap= gap/orderBook.asks[2][0]
-                except:
+                    pourcentageGap=self.getGap(orderBook.asks,orderBook.bids)
+                except Exception as e:
+                    print(str(e))
                     pourcentageGap=0.01
                 if liquidity>100 and pourcentageGap > 0.01:
                     if pair in cgPairs:
@@ -94,7 +94,7 @@ class AbstractAnalystMan:
                 print(f"process number {key} symbol : {symbol}")
                 self.volume={}
                 for sym in symbol: 
-                    self.volume[sym]={'volume': 0, 'asks': 0, 'bids': 0,'transactions':[],'nbTransactionGap':0,'volumeTransactionGap':0}
+                    self.volume[sym]={'volume': 0, 'gap':[],'asks': 0, 'bids': 0,'transactions':[],'nbTransactionGap':0,'volumeTransactionGap':0}
                 nbOfTenUnit=int(nbOfFetch/10)
                 for index in range(nbOfTenUnit):
                     timeNow=datetime.now()
@@ -117,11 +117,11 @@ class AbstractAnalystMan:
                     oldSymbol=dataBase.turnToList(oldSymbol)
                     for vol in self.volume.keys():
                         if oldSymbol.__contains__(vol)==False:
-                            dataBase.insert_into_table('volume4h',(vol,self.exchange,0,0,0,"",0,0))
+                            dataBase.insert_into_table('volume4h',(vol,self.exchange,0,0,0,0,0,0,""))
                     for vol in self.volume.keys():
                         gap=self.getGapFromVolume(self.volume[vol]['gap'])
-                        dataBase.increment('volume4h',column='gap',newValue=gap,condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
                         dataBase.increment('volume4h',column='volume',newValue=str(self.volume[vol]['volume']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
+                        dataBase.increment('volume4h',column='gap',newValue=gap,condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
                         dataBase.increment('volume4h',column='asks',newValue=str(self.volume[vol]['asks']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
                         dataBase.increment('volume4h',column='bids',newValue=str(self.volume[vol]['bids']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])
                         dataBase.increment('volume4h',column='nbTransactionGap',newValue=str(self.volume[vol]['nbTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
@@ -175,11 +175,11 @@ class AbstractAnalystMan:
         buy=0
         for ask in asks:
             if ask[0] * ask[1] > 10 :
-                sell = ask[0] * ask[1] 
+                sell = ask[0]  
                 break
         for bid in bids:
             if bid[0] * bid[1] > 10:
-                buy = bid[0] * bid[1] 
+                buy = bid[0]
                 break
         return (sell-buy)/sell if(sell!=0 and buy!=0) else  0
     def _calculSumOfOrderAndHumanActivityRatio(self,orderBook):

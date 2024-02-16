@@ -11,7 +11,7 @@ def test_updatePairs():
 @pytest.mark.skip  
 def test_findTokenWithGap():
     mexcAnalystMan.findTokenWithGap()
-@pytest.mark.skip  
+#@pytest.mark.skip  
 def test_countVolume():
     mexcAnalystMan.countVolume(10,60,True)
    
@@ -43,7 +43,7 @@ def test_multiple_transactions():
     nb, vol = mexcAnalystMan.countTransactionsWithGap(transactions, gap,0,0)
     assert abs(vol-11.80945) <=0.001
     assert nb==2
-#@pytest.mark.skip   
+@pytest.mark.skip   
 def  test_getTransactionHistory():
     #spot=Spot(api_key='mx0vglvIlls4RraSCH',api_secret='7521f7de355d4c54aa5b34d6d0e21822')
     mexcAnalystMan.getTransactionHistory(15)
