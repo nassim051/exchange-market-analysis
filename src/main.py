@@ -15,7 +15,7 @@ def searchInGate():
     gateio.countVolume(240,60,True)
 def searchInMexc():
     mexc=MexcAnalystMan.MexcAnalystMan()
-    #mexc.updatePairs()
+    mexc.updatePairs()
     mexc.findTokenWithGap()
     mexc.countVolume(240,60,True)    
     

@@ -17,7 +17,8 @@ class AbstractAnalystMan:
         self.volume={}
         self.nbProcess=nbProcess
         self.process=[]
-
+        for i in range(nbProcess):
+            self.process.append({'basicDataMan':copy.copy(self.basicDataMan),'marketMan':copy.copy(self.marketMan)})
     
     @abstractmethod
     def botIsTrue(self,pair):
@@ -89,7 +90,6 @@ class AbstractAnalystMan:
                             self.updateTransactionsWithGap(symbol,0.01)
 
     def createThread(self, nbOfFetch,timeUnity,addOnDb, symbol,key):
-                self.process.append({'basicDataMan':copy.copy(self.basicDataMan),'marketMan':copy.copy(self.marketMan)})
                 dataBase=DbManager.DbManager()
                 print(f"process number {key} symbol : {symbol}")
                 self.volume={}

@@ -10,10 +10,9 @@ def test_updatePairs():
 @pytest.mark.skip
 def test_findTokenWithGap():
     LBankAnalystMan.findTokenWithGap()
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_countVolume():
-    LBankAnalystMan.countVolume(10,60,True,symbol=("bal_usdt","ren_usdt","rpl_usdt","crv_usdt","efk_usdt","flm_usdt","meme_usdt","tvk_usdt","grt_usdt","pond_usdt","pce_usdt","1inch_usdt","sdt_usdt","lit_usdt","bnt_usdt","axs_usdt","elcash_usdt","fei_usdt","fine_usdt","tru_usdt","kabosu_usdt","babydoge_usdt","tlm_usdt","saitama_usdt","yoshi_usdt","xt_usdt","aca_usdt","crp_usdt","bio_usdt","magic_usdt","mr_usdt","sys_usdt","klee_usdt","bfic_usdt","jasmy_usdt","cult_usdt"))
-   
+    LBankAnalystMan.countVolume(10,60,True,symbol=("grv_usdt","gdcc_usdt","mshd_usdt","rndr_usdt","mob_usdt","imgnai_usdt","rdnt_usdt","mtvt_usdt","fis_usdt","ria_usdt","core_usdt","kava_usdt","ssv_usdt","lgc_usdt","wv_usdt","mudi_usdt","blur_usdt","ent_usdt","acs_usdt","tra_usdt","fra_usdt","gns_usdt","wen_usdt","infi_usdt","soc_usdt","zkf_usdt","camly_usdt","gme_usdt","2ped_usdt","pork_usdt","dmail_usdt","lzm_usdt","reel_usdt","sxio_usdt","jup_usdt","zeta_usdt","drm_usdt","nuts_usdt","dwars_usdt","pandora_usdt","pwc_usdt","coon_usdt","oas_usdt","bom_usdt","hpo_usdt","navx_usdt","dym_usdt","pbu_usdt"))
 @pytest.mark.skip
 def test_deleteFutures():
     result=LBankAnalystMan.deleteFutures('ETH_USDT','ETH3S_USDT','BTC_USDT','R2L_USDT')
