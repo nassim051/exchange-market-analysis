@@ -3,6 +3,7 @@
 # file name : BaseConfigMan
 import src.exchange.lbank.APIV2Excu as APIV2Excu
 import src.exchange.lbank.models.OrderBook as OrderBook
+import src.exchange.lbank.models.Kline as Kline
 import src.exchange.lbank.models.Transaction as Transaction
 import src.interface.IMarketMan as IMarketMan
 class MarketMan(IMarketMan.IMarketMan ):
@@ -56,7 +57,8 @@ class MarketMan(IMarketMan.IMarketMan ):
         for key in d.keys():
             par[ key ] = d[ key ]
 
-        return self.excuReq.ExcuRequests( par, str )
+        response= self.excuReq.ExcuRequests( par, str )
+        return Kline.editJsonResponse(response)
 
 
 

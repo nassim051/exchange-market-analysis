@@ -10,9 +10,9 @@ from datetime import datetime, timedelta
 
 import src.Telegram.Telegram as Telegram
 class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
-        def __init__(self,key=1):
+        def __init__(self,nbProcess,key=1):
                 self.key=key
-                super().__init__(BasicDataMan.BaseConfigMan(),MarketMan.MarketMan(),'LBank',1000,4)
+                super().__init__(basicDataMan=BasicDataMan.BaseConfigMan(),marketMan=MarketMan.MarketMan(),exchange='lbank',secondOrMili=1000,nbProcess=nbProcess)
 
  
         def deleteFutures(self, pairs):

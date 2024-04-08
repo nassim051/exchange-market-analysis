@@ -14,7 +14,8 @@ class AbstractAnalystMan:
         self.exchange=exchange
         self.cg = CoinGeckoAPI()
         self.secondOrMili=secondOrMili
-        self.volume={}
+        self.volume = multiprocessing.Manager().dict()
+        #self.volume={}
         self.nbProcess=nbProcess
         self.process=[]
         for i in range(nbProcess):

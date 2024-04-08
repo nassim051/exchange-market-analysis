@@ -61,10 +61,12 @@ class client:
                     res = req.post( url=urlstr, data=par, headers=header,timeout=15 )
                 else:
                     res = req.get( url=urlstr, params=par, headers=header, timeout=15 )
-            except req.exceptions.ConnectionError  :
+            except req.exceptions.ConnectionError as e :
+                print('An exeption occured:'+str(e))
                 print("connection error, let me sleep for 15 seconde")
                 time.sleep(15)
             except req.exceptions.Timeout:
+                print('An exeption occured:'+str(e))
                 print('Request timeout, retrying after 15seconde')
                 time.sleep(15)
             else:

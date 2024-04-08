@@ -1,9 +1,22 @@
+import src.exchange.mexc.models.Kline as Kline
 import src.interface.IMarketMan as imm
 from src.exchange.mexc.mexc_api_sdk.mexc_sdk.src.mexc_sdk import Spot
 from datetime import datetime
 import src.exchange.mexc.models.OrderBook as modelOrderBook
 import src.exchange.mexc.models.Transaction as modelTransaction
 import time
+STANDARD_TIME_TO_MEXC_TIME_MAP = {
+'minute1': '1m',
+'minute5': '5m',
+'minute15': '15m',
+'minute30': '30m',
+'hour1': '60m',
+'hour4': '4h',
+'day1': '1d',
+'week1': '1W',
+'month1': '1M'
+}
+
 class MexcMarketMan(imm.IMarketMan):
     def __init__(self):
         self.spot=Spot()
@@ -30,8 +43,21 @@ class MexcMarketMan(imm.IMarketMan):
                 break
         return modelTransaction.editJsonResponse(response)
     def getKline(self, **d):
-        # Implement getKline method for GateMarketMan
-        pass   
+        startTime=int(d['time'])
+        limit=int(d['size'])
+
+        interval=STANDARD_TIME_TO_MEXC_TIME_MAP[d['type']]
+
+        while True:
+            try:
+                response=self.spot.klines(symbol=d['symbol'],interval=interval,options={"startTime":startTime,"limit":limit})
+            except Exception as e:
+                print('An exeption occured:'+str(e))
+                print("l'm going to sleep for 15 seconde")
+                time.sleep(15)
+            else:
+                break
+        return Kline.editJsonResponse(response)
     def getDepth(self, **d):
         while True:
             try:

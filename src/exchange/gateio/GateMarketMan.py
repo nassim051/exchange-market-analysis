@@ -6,8 +6,19 @@ import src.exchange.gateio.models.My_trades as My_trades
 import time
 from src.exchange.gateio.github.gate_api.api_client import ApiClient
 from src.exchange.gateio.github.gate_api.exceptions import ApiTypeError, ApiValueError  # noqa: F401
-
-
+import src.exchange.gateio.models.Kline as Kline
+STANDARD_TIME_TO_GATEIO_TIME_MAP = {
+'minute5': '5m',
+'minute15': '15m',
+'minute30': '30m',
+'hour1': '1h',
+'hour4': '4h',
+'hour8': '8h',
+'hour12': '12h',
+'day1': '1d',
+'week1': '7d',
+'month1': '30d'
+}
 class GateMarketMan(imm.IMarketMan):
     def __init__(self, api_client=None):
         if api_client is None:
@@ -192,9 +203,153 @@ class GateMarketMan(imm.IMarketMan):
             collection_formats=collection_formats,
         )
         
+
+
+
+
     def getKline(self, **d):
-        # Implement getKline method for GateMarketMan
-        pass   
+        if 'size' in d:
+            d['limit']=d.pop('size')
+        if 'time' in d:
+            d['_from']=d.pop('time')
+        if "symbol" in d:
+            d['interval']=STANDARD_TIME_TO_GATEIO_TIME_MAP[d.pop('type')]
+        if "symbol" in d:
+            currency_pair = d["symbol"]
+            del d["symbol"]  
+        else:
+            raise KeyError("The 'd' dictionary does not contain the 'currency_pair' key")
+
+        """Market candlesticks  # noqa: E501
+
+        Maximum of 1000 points can be returned in a query. Be sure not to exceed the limit when specifying from, to and interval  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_candlesticks(currency_pair, async_req=True)
+        >>> result = thread.get()
+
+        :param bool async_req: execute request asynchronously
+        :param str currency_pair: Currency pair (required)
+        :param int limit: Maximum recent data points to return. `limit` is conflicted with `from` and `to`. If either `from` or `to` is specified, request will be rejected.
+        :param int _from: Start time of candlesticks, formatted in Unix timestamp in seconds. Default to`to - 100 * interval` if not specified
+        :param int to: End time of candlesticks, formatted in Unix timestamp in seconds. Default to current time
+        :param str interval: Interval time between data points. Note that `30d` means 1 natual month, not 30 days
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :rtype: list[list[str]]
+        :return: If the method is called asynchronously,
+                 returns the request thread.
+        """
+        d['_return_http_data_only'] = True
+        return Kline.editJsonResponse(self.list_candlesticks_with_http_info(currency_pair, **d))  # noqa: E501
+
+    def list_candlesticks_with_http_info(self, currency_pair, **kwargs):  # noqa: E501
+        """Market candlesticks  # noqa: E501
+
+        Maximum of 1000 points can be returned in a query. Be sure not to exceed the limit when specifying from, to and interval  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+        >>> thread = api.list_candlesticks_with_http_info(currency_pair, async_req=True)
+        >>> result = thread.get()
+
+        :param bool async_req: execute request asynchronously
+        :param str currency_pair: Currency pair (required)
+        :param int limit: Maximum recent data points to return. `limit` is conflicted with `from` and `to`. If either `from` or `to` is specified, request will be rejected.
+        :param int _from: Start time of candlesticks, formatted in Unix timestamp in seconds. Default to`to - 100 * interval` if not specified
+        :param int to: End time of candlesticks, formatted in Unix timestamp in seconds. Default to current time
+        :param str interval: Interval time between data points. Note that `30d` means 1 natual month, not 30 days
+        :param _return_http_data_only: response data without head status code
+                                       and headers
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :rtype: tuple(list[list[str]], status_code(int), headers(HTTPHeaderDict))
+        :return: If the method is called asynchronously,
+                 returns the request thread.
+        """
+
+        local_var_params = locals()
+
+        all_params = ['currency_pair', 'limit', '_from', 'to', 'interval']
+        all_params.extend(['async_req', '_return_http_data_only',
+                          '_preload_content', '_request_timeout'])
+
+        for k, v in six.iteritems(local_var_params['kwargs']):
+            if k not in all_params:
+                raise ApiTypeError(
+                    "Got an unexpected keyword argument '%s'" " to method list_candlesticks" % k)
+            local_var_params[k] = v
+        del local_var_params['kwargs']
+        # verify the required parameter 'currency_pair' is set
+        if self.api_client.client_side_validation and (
+            'currency_pair' not in local_var_params or local_var_params['currency_pair'] is None  # noqa: E501
+        ):  # noqa: E501
+            raise ApiValueError(
+                "Missing the required parameter `currency_pair` when calling `list_candlesticks`"
+            )  # noqa: E501
+
+        if (
+            self.api_client.client_side_validation and 'limit' in local_var_params and local_var_params[
+                'limit'] > 1000
+        ):  # noqa: E501
+            raise ApiValueError(
+                "Invalid value for parameter `limit` when calling `list_candlesticks`, must be a value less than or equal to `1000`"
+            )  # noqa: E501
+        collection_formats = {}
+
+        path_params = {}
+
+        query_params = []
+        if 'currency_pair' in local_var_params and local_var_params['currency_pair'] is not None:  # noqa: E501
+            query_params.append(('currency_pair', local_var_params['currency_pair']))  # noqa: E501
+        if 'limit' in local_var_params and local_var_params['limit'] is not None:  # noqa: E501
+            query_params.append(('limit', local_var_params['limit']))  # noqa: E501
+        if '_from' in local_var_params and local_var_params['_from'] is not None:  # noqa: E501
+            query_params.append(('from', local_var_params['_from']))  # noqa: E501
+        if 'to' in local_var_params and local_var_params['to'] is not None:  # noqa: E501
+            query_params.append(('to', local_var_params['to']))  # noqa: E501
+        if 'interval' in local_var_params and local_var_params['interval'] is not None:  # noqa: E501
+            query_params.append(('interval', local_var_params['interval']))  # noqa: E501
+
+        header_params = {}
+
+        form_params = []
+        local_var_files = {}
+
+        body_params = None
+        # HTTP header `Accept`
+        header_params['Accept'] = self.api_client.select_header_accept(['application/json'])  # noqa: E501
+
+        # Authentication setting
+        auth_settings = []  # noqa: E501
+
+        return self.api_client.call_api(
+            '/spot/candlesticks',
+            'GET',
+            path_params,
+            query_params,
+            header_params,
+            body=body_params,
+            post_params=form_params,
+            files=local_var_files,
+            response_type='list[list[str]]',  # noqa: E501
+            auth_settings=auth_settings,
+            async_req=local_var_params.get('async_req'),
+            _return_http_data_only=local_var_params.get('_return_http_data_only'),  # noqa: E501
+            _preload_content=local_var_params.get('_preload_content', True),
+            _request_timeout=local_var_params.get('_request_timeout'),
+            collection_formats=collection_formats,
+        )
+
     def getDepth(self, **d):
         if "symbol" in d:
             currency_pair = d["symbol"]

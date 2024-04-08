@@ -24,7 +24,12 @@ def test_listOrders():
 
 
 
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_getTicker():
     response=MarketMan.MarketMan().getTicker(symbol='sos_usdt')
+    print(response)
+
+
+def test_getKline():
+    response=MarketMan.MarketMan().getKline(symbol='btc_usdt',size=100,type="minute1",time=1712433441)
     print(response)
