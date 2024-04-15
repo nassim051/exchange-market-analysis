@@ -7,6 +7,7 @@ import src.exchange.gateio.Analyse.GateioWaveAnalyzer as GateioWaveAnalyzer
 import src.exchange.mexc.Analyse.MexcWaveAnalyzer as MexcWaveAnalyzer
 import src.exchange.binance.Analyse.BinanceWaveAnalyzer as BinanceWaveAnalyzer
 import  src.Telegram.Telegram as Telegram
+import src.db.DbManager as DbManager
 import sys
 TIME_FRAMES = [
     'minute5', 'minute15', 'minute30', 'hour1', 'hour4', 'hour8', 'hour12', 'day1', 'week1', 'month1'
@@ -67,10 +68,22 @@ def showOptions():
             print('Invalid entry, please retry.')
             continue
         return answer
-
+def renitialiseTablesOrnot():
+    while True:
+            answer = input('Do you want to renitialise the database tables showing the volume (y/n): ')
+            if answer not in {'y', 'n'}:
+                print('Invalid entry, please retry.')
+            else:
+                break
+    if answer=='y':
+        dbManager=DbManager.DbManager()
+        dbManager.renitialise("pair")
+        dbManager.renitialise("pairWithLiquidity")
+        dbManager.renitialise("volume4h")
 def searchInLBank():
     option=showOptions()
     if option=='v':
+        renitialiseTablesOrnot()
         nbProcess=getNbProcess()
         lbank=LBankAnalystMan.LBankAnalystMan(nbProcess=nbProcess)
         lbank.updatePairs()
@@ -89,6 +102,7 @@ def searchInLBank():
 def searchInGate():
     option=showOptions()
     if option=='v':
+        renitialiseTablesOrnot()
         nbProcess=getNbProcess()
         gateio=GateioAnalystMan.GateioAnalystMan(nbProcess=nbProcess)
         gateio.updatePairs()
@@ -107,6 +121,7 @@ def searchInGate():
 def searchInMexc():
     option=showOptions()
     if option=='v':
+        renitialiseTablesOrnot()
         nbProcess=getNbProcess()
         mexc=MexcAnalystMan.MexcAnalystMan(nbProcess=nbProcess)
         mexc.updatePairs()
