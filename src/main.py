@@ -68,26 +68,34 @@ def showOptions():
             print('Invalid entry, please retry.')
             continue
         return answer
-def renitialiseTablesOrnot():
-    while True:
-            answer = input('Do you want to renitialise the database tables showing the volume (y/n): ')
-            if answer not in {'y', 'n'}:
-                print('Invalid entry, please retry.')
-            else:
-                break
-    if answer=='y':
+def renitialiseVolumeTables():
         dbManager=DbManager.DbManager()
         dbManager.renitialise("pair")
         dbManager.renitialise("pairWithLiquidity")
         dbManager.renitialise("volume4h")
+def newResearch():
+    while True:
+            print("New research (n)")
+            print("Pursue current research (p)")
+            answer = input('Enter your choice (n/p)')
+            if answer not in {'p', 'n'}:
+                print('Invalid entry, please retry.')
+            else:
+                break
+    if answer=='n':
+        return True
+    else:
+        return False
 def searchInLBank():
     option=showOptions()
     if option=='v':
-        renitialiseTablesOrnot()
         nbProcess=getNbProcess()
         lbank=LBankAnalystMan.LBankAnalystMan(nbProcess=nbProcess)
-        lbank.updatePairs()
-        lbank.findTokenWithGap()
+        lunchNewResearch=newResearch()
+        if lunchNewResearch:
+            renitialiseVolumeTables()
+            lbank.updatePairs()
+            lbank.findTokenWithGap()
         lbank.countVolume(240,60,True)
         Telegram.Telegram('Database').send_file()
     elif option=='w':
@@ -102,11 +110,13 @@ def searchInLBank():
 def searchInGate():
     option=showOptions()
     if option=='v':
-        renitialiseTablesOrnot()
         nbProcess=getNbProcess()
         gateio=GateioAnalystMan.GateioAnalystMan(nbProcess=nbProcess)
-        gateio.updatePairs()
-        gateio.findTokenWithGap()
+        lunchNewResearch=newResearch()
+        if lunchNewResearch:
+            renitialiseVolumeTables()
+            gateio.updatePairs()
+            gateio.findTokenWithGap()
         gateio.countVolume(240,60,True)
         Telegram.Telegram('Database').send_file()
     elif option=='w':
@@ -121,11 +131,13 @@ def searchInGate():
 def searchInMexc():
     option=showOptions()
     if option=='v':
-        renitialiseTablesOrnot()
         nbProcess=getNbProcess()
         mexc=MexcAnalystMan.MexcAnalystMan(nbProcess=nbProcess)
-        mexc.updatePairs()
-        mexc.findTokenWithGap()
+        lunchNewResearch=newResearch()
+        if lunchNewResearch:
+            renitialiseVolumeTables()
+            mexc.updatePairs()
+            mexc.findTokenWithGap()
         mexc.countVolume(240,60,True)    
         Telegram.Telegram('Database').send_file()
     elif option=='w':
