@@ -14,7 +14,7 @@ TIME_FRAMES = [
 
 def getWaveMinimumAmplitude():
     while True:
-        answer = input('Enter the minimum wave amplitude: ')
+        answer = input('Enter the minimum wave amplitude (minimum to maximum amp): ')
         try:
             answer = float(answer)
             return answer
@@ -81,8 +81,8 @@ def searchInLBank():
         nbProcess=getNbProcess()
         nbThreads=getNbThreads()
         waveAmplitude=getWaveMinimumAmplitude()
-        nbHours=getNbHours()
         timeFrame=getTimeFrame()
+        nbHours=getNbHours()
         period=getPeriode()
         LBankWaveAnalyzer.LBankWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame).run()
 
@@ -99,8 +99,8 @@ def searchInGate():
             nbProcess=getNbProcess()
             nbThreads=getNbThreads()
             waveAmplitude=getWaveMinimumAmplitude()
-            nbHours=getNbHours()
             timeFrame=getTimeFrame()
+            nbHours=getNbHours()
             period=getPeriode()
             GateioWaveAnalyzer.GateioWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame).run()
 
@@ -117,8 +117,8 @@ def searchInMexc():
             nbProcess=getNbProcess()
             nbThreads=getNbThreads()
             waveAmplitude=getWaveMinimumAmplitude()
-            nbHours=getNbHours()
             timeFrame=getTimeFrame()
+            nbHours=getNbHours()
             period=getPeriode()
             MexcWaveAnalyzer.MexcWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame).run()
 
@@ -156,8 +156,8 @@ def searchInBinance():
             nbProcess=getNbProcess()
             nbThreads=getNbThreads()
             waveAmplitude=getWaveMinimumAmplitude()
-            nbHours=getNbHours()
             timeFrame=getTimeFrame()
+            nbHours=getNbHours()
             period=getPeriode()
             BinanceWaveAnalyzer.BinanceWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame).run()
     
@@ -192,7 +192,7 @@ def getSymbol():
      
 def getNbHours():
     while True:
-        nbHours = input("Please enter the number of hours back from the current time to start analyzing data: ")
+        nbHours = input("Please enter the number of candle back from the current time to start analyzing data: ")
         try:
             nbHours = int(nbHours)
             return nbHours

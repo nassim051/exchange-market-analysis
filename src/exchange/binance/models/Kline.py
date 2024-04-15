@@ -4,17 +4,17 @@ class Kline:
   
     def __init__( 
         self,temps,ouverture,high,low,close,volume,closeTime,quoteVolume,numOfTrades,takerBuyBaseVolume,takerBuyQuoteVolume):
-        self.time=temps
-        self.open=ouverture
-        self.high=high
-        self.low=low
-        self.close=close
-        self.volume=volume
-        self.closeTime=closeTime
-        self.quoteVolume=quoteVolume
-        self.numOfTrades=numOfTrades
-        self.takerBuyBaseVolume=takerBuyBaseVolume
-        self.takerBuyQuoteVolume=takerBuyQuoteVolume
+        self.time=float(temps)
+        self.open=float(ouverture)
+        self.high=float(high)
+        self.low=float(low)
+        self.close=float(close)
+        self.volume=float(volume)
+        self.closeTime=float(closeTime)
+        self.quoteVolume=float(quoteVolume)
+        self.numOfTrades=float(numOfTrades)
+        self.takerBuyBaseVolume=float(takerBuyBaseVolume)
+        self.takerBuyQuoteVolume=float(takerBuyQuoteVolume)
     def to_dict(self):
         return {
             "time":self.time,
@@ -45,6 +45,5 @@ def editJsonResponse(response):
     edited_response=[]
     for res in response:
         edited_response.append(Kline(temps=res[0],ouverture=res[1],high=res[2],low=res[3],close=res[4],volume=res[5],closeTime=res[6],quoteVolume=res[7],numOfTrades=res[8],takerBuyBaseVolume=res[9],takerBuyQuoteVolume=res[10]))
-
     del(response)
     return edited_response

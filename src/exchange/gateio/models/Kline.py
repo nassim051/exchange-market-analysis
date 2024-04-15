@@ -4,12 +4,12 @@ class Kline:
     def __init__( 
         self,temps,volume,close,high,low,ouverture
     ):
-        self.time=temps
-        self.volume=volume
-        self.close=close
-        self.high=high
-        self.low=low
-        self.open=ouverture
+        self.time=float(temps)
+        self.volume=float(volume)
+        self.close=float(close)
+        self.high=float(high)
+        self.low=float(low)
+        self.open=float(ouverture)
         
         
     def to_dict(self):

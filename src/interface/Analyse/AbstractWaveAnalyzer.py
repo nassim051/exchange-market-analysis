@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta, timezone
 import time,multiprocessing,threading
 import src.db.DbManager as DbManager
-class AbstractWaveAnalyzer:
+from abc import ABC, abstractmethod
+class AbstractWaveAnalyzer(ABC):
     TIMEFRAMES_TO_SECOND_MAP = {
     'minute1': int(timedelta(minutes=1).total_seconds()),
     'minute5': int(timedelta(minutes=5).total_seconds()),
@@ -14,9 +15,9 @@ class AbstractWaveAnalyzer:
     'day1': int(timedelta(days=1).total_seconds()),
     'week1': int(timedelta(weeks=1).total_seconds()),
     'month1': int(timedelta(days=30).total_seconds())  # Approximate
-}
+} 
 
-    def __init__(self,basicDataMan ,marketMan,exchange,timeFrame, nbHour,waveVolatility,secondOrMili,period,numProcess,numOfThreads):
+    def __init__(self,basicDataMan,size ,marketMan,exchange,timeFrame, nbHour,waveVolatility,secondOrMili,period,numProcess,numOfThreads):
         self.result = multiprocessing.Manager().dict()
         self.marketMan= marketMan
         self.basicDataMan=basicDataMan
@@ -29,13 +30,19 @@ class AbstractWaveAnalyzer:
         self.numProcess=numProcess
         self.numOfThreads=numOfThreads
         self.sleep=0.6
+        self.size=size
     def extractSymbols(self,result):
-        if self.exchange=='binance':
-            return result['symbols']
         symbols=[]
+        if self.exchange=='binance':
+            for res in result['symbols']:
+                symbols.append(res['symbol'])
+            return symbols
         for res in result:
             symbols.append(res.symbol)
         return symbols
+    @abstractmethod
+    def deleteFutures(result):
+        pass
     def run(self):
         dbManager=DbManager.DbManager()
         dbManager.renitialise('wave')
@@ -82,10 +89,12 @@ class AbstractWaveAnalyzer:
     def getLastPrice(self,symbol):
         klineEndDate=time.time()*self.secondOrMili
         klineStartDate=int(klineEndDate-timedelta(hours=self.nbHour).total_seconds()*self.secondOrMili)-self.TIMEFRAMES_TO_SECOND_MAP[self.timeFrame]*self.period*self.secondOrMili
-        prices=self.marketMan.getKline(size=2000,symbol=symbol,time=klineStartDate,type=self.timeFrame)
-        while int(prices[len(prices)-1].time)+self.TIMEFRAMES_TO_SECOND_MAP[self.timeFrame]<klineEndDate and len(prices)!=0:  
+        prices=self.marketMan.getKline(size=self.size,symbol=symbol,time=klineStartDate,type=self.timeFrame)
+        if len(prices)==0:
+            return prices
+        while int(prices[len(prices)-1].time)+self.TIMEFRAMES_TO_SECOND_MAP[self.timeFrame]*self.secondOrMili<klineEndDate and len(prices)!=0:  
             time.sleep(self.sleep)
-            result=self.marketMan.getKline(size=2,symbol=symbol,time=prices[len(prices)-1][0]+self.TIMEFRAMES_TO_SECOND_MAP[self.timeFrame],type=self.timeFrame)
+            result=self.marketMan.getKline(size=self.size,symbol=symbol,time=prices[len(prices)-1].time+self.TIMEFRAMES_TO_SECOND_MAP[self.timeFrame]*self.secondOrMili,type=self.timeFrame)
             for res in result:
                 prices.append(res)
         return self.restyleResult(prices)
@@ -100,7 +109,8 @@ class AbstractWaveAnalyzer:
         return self.calculate_close_price_ma(prices,self.period)
 
     def calculate_close_price_ma(self,prices, period):
-        assert(len(prices)>self.period)
+        if(len(prices)<self.period):
+            return prices
         """
         Calculate the moving average based on the close prices for each element in the given list.
 
@@ -144,7 +154,9 @@ class AbstractWaveAnalyzer:
 
     def analyseWave(self,symbol):
         priceWithMa=self.getPriceWithMa(symbol=symbol)
-        print(priceWithMa)
+        if(len(priceWithMa))<self.period:
+            print(f"{symbol}: Insufficient price data for the selected period. Unable to calculate the moving average")
+            return
         amplitude=self.calculate_amplitude_percentages(priceWithMa)
         currentPosition=self.getPosition(priceWithMa[0]['close'],priceWithMa[0]['ma'])
         nbWave=0
@@ -177,7 +189,7 @@ class AbstractWaveAnalyzer:
                         break
                 del(priceWithMa[:i])
                 rate=(maximum-minimum)/minimum*100
-                if(rate)>2:
+                if(rate)>self.waveVolatility:
                     nbWave+=1
                     amplitudeWaves.append(rate)
             if (len(priceWithMa)==1):

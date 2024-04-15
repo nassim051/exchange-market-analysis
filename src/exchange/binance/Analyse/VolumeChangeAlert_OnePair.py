@@ -125,6 +125,6 @@ class VolumeChangeAlert_OnePair:
             self.updateToBtcRate()
         endTime=int(datetime.now().timestamp())*1000
         startTime=int(endTime-timedelta(hours=nbHours).total_seconds()*1000)
-        self.detectWhaleLast3(startTime=startTime,symbol='BTCUSDT',endTime=endTime)
+        self.detectWhaleLast3(startTime=startTime,symbol=symbol,endTime=endTime)
 
 

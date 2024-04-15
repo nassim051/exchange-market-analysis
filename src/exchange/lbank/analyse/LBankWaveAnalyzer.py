@@ -1,15 +1,15 @@
 import pytest, os, sys, six, time
-import src.interface.Analyse.AbstractWaveAnalyzer as AbstracyWaveAnalyzer
+import src.interface.Analyse.AbstractWaveAnalyzer as AbstractWaveAnalyzer
 
 import src.exchange.lbank.BasicDataMan as BasicDataMan
 import src.exchange.lbank.MarketMan as MarketMan
 from date_time_event import Untiltime
 from datetime import datetime, timedelta
 
-class LBankWaveAnalyzer(AbstracyWaveAnalyzer.AbstractWaveAnalyzer):
+class LBankWaveAnalyzer(AbstractWaveAnalyzer.AbstractWaveAnalyzer):
         def __init__(self,numProcess,numOfThreads,nbHour,timeFrame,waveVolatility,period,key=1):
                 self.key=key
-                super().__init__(period=period,basicDataMan=BasicDataMan.BaseConfigMan(),marketMan=MarketMan.MarketMan(),exchange='lbank',secondOrMili=1,numProcess=numProcess,numOfThreads=numOfThreads,nbHour=nbHour,timeFrame=timeFrame,waveVolatility=waveVolatility)
+                super().__init__(size=2000,period=period,basicDataMan=BasicDataMan.BaseConfigMan(),marketMan=MarketMan.MarketMan(),exchange='lbank',secondOrMili=1,numProcess=numProcess,numOfThreads=numOfThreads,nbHour=nbHour,timeFrame=timeFrame,waveVolatility=waveVolatility)
 
  
         def deleteFutures(self, pairs):

@@ -50,6 +50,7 @@ class AbstractAnalystMan:
                 try:
                     pourcentageGap=self.getGap(orderBook.asks,orderBook.bids)
                 except Exception as e:
+                    print(f"exception occured")
                     print(str(e))
                     pourcentageGap=0.01
                 if liquidity>100 and pourcentageGap > 0.01:

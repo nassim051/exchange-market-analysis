@@ -31,5 +31,5 @@ def test_getTicker():
 
 
 def test_getKline():
-    response=MarketMan.MarketMan().getKline(symbol='btc_usdt',size=100,type="minute1",time=1712433441)
-    print(response)
+    prices=MarketMan.MarketMan().getKline(symbol='btc_usdt',size=100,type="minute1",time=1712433441)
+    print(prices[len(prices)-1])
