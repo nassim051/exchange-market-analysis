@@ -95,6 +95,8 @@ class AbstractWaveAnalyzer(ABC):
         while int(prices[len(prices)-1].time)+self.TIMEFRAMES_TO_SECOND_MAP[self.timeFrame]*self.secondOrMili<klineEndDate and len(prices)!=0:  
             time.sleep(self.sleep)
             result=self.marketMan.getKline(size=self.size,symbol=symbol,time=prices[len(prices)-1].time+self.TIMEFRAMES_TO_SECOND_MAP[self.timeFrame]*self.secondOrMili,type=self.timeFrame)
+            if len(result)==0:
+                return prices
             for res in result:
                 prices.append(res)
         return self.restyleResult(prices)

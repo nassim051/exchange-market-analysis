@@ -34,7 +34,7 @@ class BinanceMarketMan(imm.IMarketMan):
     def getKline(self, **d):
         while True:
             try:
-                result=self.spot.klines(limit=d['size'],symbol=d['symbol'],startTime=d['time'],interval=STANDARD_TIME_TO_BINANCE_TIME_MAP[d['type']])
+                result=self.spot.klines(limit=d['size'],symbol=d['symbol'],startTime=int(d['time']),interval=STANDARD_TIME_TO_BINANCE_TIME_MAP[d['type']])
             except Exception as e:
                     print(f"Following exception occured: {e}")
                     if hasattr(e, 'status_code') and e.status_code==429:

@@ -65,7 +65,7 @@ class client:
                 print('An exeption occured:'+str(e))
                 print("connection error, let me sleep for 15 seconde")
                 time.sleep(15)
-            except req.exceptions.Timeout:
+            except req.exceptions.Timeout as e:
                 print('An exeption occured:'+str(e))
                 print('Request timeout, retrying after 15seconde')
                 time.sleep(15)

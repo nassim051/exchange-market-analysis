@@ -1,7 +1,7 @@
 FROM python
 WORKDIR /app
 COPY . /app
-RUN apt-get update \
+RUN apt-get update  --fix-missing \
     && apt-get install -y nodejs npm \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install pytest six pycoingecko  date_time_event python-dateutil pycryptodome jsii

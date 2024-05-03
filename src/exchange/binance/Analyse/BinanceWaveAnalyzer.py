@@ -12,4 +12,8 @@ class BinanceWaveAnalyzer(AbstractWaveAnalyzer.AbstractWaveAnalyzer):
                 super().__init__(size=1000,period=period,basicDataMan=BasicDataMan.BinanceBasicDataMan(),marketMan=MarketMan.BinanceMarketMan(),exchange='binance',secondOrMili=1000,numProcess=numProcess,numOfThreads=numOfThreads,nbHour=nbHour,timeFrame=timeFrame,waveVolatility=waveVolatility)
 
         def deleteFutures(self, pairs):
-            return pairs
+            symbols=[]
+            for sym in pairs:
+                if sym.endswith('USDT'):
+                        symbols.append(sym)
+            return symbols

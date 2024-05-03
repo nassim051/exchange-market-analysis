@@ -4,7 +4,7 @@ from src.exchange.mexc.mexc_api_sdk.mexc_sdk.src.mexc_sdk import Spot
 from datetime import datetime, timedelta
 
 
-mexcAnalystMan=MexcAnalystMan.MexcAnalystMan()
+mexcAnalystMan=MexcAnalystMan.MexcAnalystMan(nbProcess=1)
 @pytest.mark.skip
 def test_updatePairs():
     mexcAnalystMan.updatePairs()

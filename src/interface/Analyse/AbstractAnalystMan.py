@@ -38,7 +38,7 @@ class AbstractAnalystMan:
             listOfPair=dataBase.select_from_table('pair',['symbol'],[f"exchange ='{self.exchange}'"])
             listOfPair= self.simplifiate( listOfPair)
             listOfPair=self.deleteFutures(listOfPair)
-            cgPairs= self.getCgListOfPair(listOfPair)
+            #cgPairs= self.getCgListOfPair(listOfPair)
             shitPairs=[]
             for pair in listOfPair:
                 orderBook=self.marketMan.getDepth(symbol=pair)
@@ -52,12 +52,12 @@ class AbstractAnalystMan:
                     print(str(e))
                     pourcentageGap=0.01
                 if liquidity>100 and pourcentageGap > 0.01:
-                    if pair in cgPairs:
-                        cgVolume,marketCap,cgRank,listOnBinance,followers=self.getCgData(cgPairs[pair])
-                    else:
-                        cgVolume,marketCap,cgRank,listOnBinance,followers=None,None,None,False,None
+                #    if pair in cgPairs:
+                 #       cgVolume,marketCap,cgRank,listOnBinance,followers=self.getCgData(cgPairs[pair])
+                 #   else:
+                 #       cgVolume,marketCap,cgRank,listOnBinance,followers=None,None,None,False,None
                     bot = 1 if self.botIsTrue(pair) else 0
-                    dataBase.insert_into_table('pairWithLiquidity',(pair,self.exchange, pourcentageGap, liquidity,cgVolume,marketCap,cgRank,listOnBinance, ratio, followers, bot))
+                    dataBase.insert_into_table('pairWithLiquidity',(pair,self.exchange, pourcentageGap, liquidity, ratio, bot))
                     print(pair,pourcentageGap)
 
 
