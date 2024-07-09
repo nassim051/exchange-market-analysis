@@ -4,7 +4,7 @@ import src.exchange.lbank.OrdersMan as OrdersMan
 import src.exchange.lbank.new_v2_inter.OrderMan as OrderMan
 import src.exchange.lbank.new_v2_inter.WalletMan as WalletMan
 import src.exchange.lbank.new_v2_inter.MarketMan as MarketManV2
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_getDepth():
     data_man = MarketMan.MarketMan()
     # Call the method, and if no exception is raised, the test passes

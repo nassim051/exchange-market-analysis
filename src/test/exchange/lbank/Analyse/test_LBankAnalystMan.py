@@ -3,14 +3,14 @@ import pytest
 import src.exchange.lbank.new_v2_inter.MarketMan as MarketMan
 import src.exchange.lbank.MarketMan as MarketMan2
 
-LBankAnalystMan=LBankAnalystMan.LBankAnalystMan()
+LBankAnalystMan=LBankAnalystMan.LBankAnalystMan(nbProcess=1)
 @pytest.mark.skip
 def test_updatePairs():
     LBankAnalystMan.updatePairs()
 @pytest.mark.skip
 def test_findTokenWithGap():
     LBankAnalystMan.findTokenWithGap()
-#@pytest.mark.skip
+@pytest.mark.skip
 def test_countVolume():
     LBankAnalystMan.countVolume(10,60,True,symbol=("grv_usdt","gdcc_usdt","mshd_usdt","rndr_usdt","mob_usdt","imgnai_usdt","rdnt_usdt","mtvt_usdt","fis_usdt","ria_usdt","core_usdt","kava_usdt","ssv_usdt","lgc_usdt","wv_usdt","mudi_usdt","blur_usdt","ent_usdt","acs_usdt","tra_usdt","fra_usdt","gns_usdt","wen_usdt","infi_usdt","soc_usdt","zkf_usdt","camly_usdt","gme_usdt","2ped_usdt","pork_usdt","dmail_usdt","lzm_usdt","reel_usdt","sxio_usdt","jup_usdt","zeta_usdt","drm_usdt","nuts_usdt","dwars_usdt","pandora_usdt","pwc_usdt","coon_usdt","oas_usdt","bom_usdt","hpo_usdt","navx_usdt","dym_usdt","pbu_usdt"))
 @pytest.mark.skip

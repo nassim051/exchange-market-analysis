@@ -2,7 +2,7 @@ import requests, zipfile, os
 class Telegram:
     def __init__(self,channel):
         self.botUserName='6595500268'
-        if channel=='LBank':
+        if channel=='lbank':
             #self.token='6782346013:AAEGp1yyfrDOahxFrFxfGAtpz-xd_tQ9Jb4'
             self.token='6918649252:AAEsR16dA6NUFcT73DKUICTOqaKsrlvDJ54'
 

@@ -29,7 +29,8 @@ class OrderBook:
 
 @staticmethod
 def editJsonResponse(response):
-    if type(response)!= dict or len(response)!=4:
+     
+    if response['msg'].__eq__("Success")==False:
         return -1
     edited_response = OrderBook(
     asks=response['data']['asks'],

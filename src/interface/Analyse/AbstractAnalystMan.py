@@ -131,7 +131,7 @@ class AbstractAnalystMan:
     def countVolume(self,nbOfFetch,timeUnity,addOnDb, symbol=None):
         dataBase=DbManager.DbManager()
         if symbol is None:
-            symbol=dataBase.select_from_table('pairwithliquidity',['symbol'],conditions=[f"exchange='{self.exchange}'","listOnBinance = false"])            
+            symbol=dataBase.select_from_table('pairwithliquidity',['symbol'],conditions=[f"exchange='{self.exchange}'"])            
             symbol=dataBase.turnToList(symbol)
             symbolWIthVolume=dataBase.select_from_table('volume4h',['symbol'],conditions=[f"exchange='{self.exchange}'"])
             symbolWIthVolume=dataBase.turnToList(symbolWIthVolume)
