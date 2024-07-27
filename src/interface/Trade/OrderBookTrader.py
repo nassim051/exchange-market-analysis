@@ -22,6 +22,9 @@ class orderBookTrader:
         self.sellAmount=sellAmount
         self.sleepTime=sleepTime
         self.durtationMinutes=durtationMinutes
+        self.priceAccuracy=self.get_price_accuracy(symbol)
+        self.buyJournal=[]
+        self.averageBuy=0
         
     def main(self):
         end_time = datetime.now() + timedelta(minutes=self.durtationMinutes)
@@ -79,11 +82,11 @@ class orderBookTrader:
         if type == 'buy':
             for bid in order_book.bids:
                 if bid[1] >= chase_amount and bid[0] < limit_price:
-                    return bid[0] + 0.01  # Just above the target
+                    return bid[0] + self.priceAccuracy  # Just above the target
         elif type == 'sell':
             for ask in order_book.asks:
                 if ask[1] >= chase_amount and ask[0] > limit_price:
-                    return ask[0] - 0.01  # Just below the target
+                    return ask[0] - self.priceAccuracy  # Just below the target
         return None
 
     def execute_order(self,symbol, type, price, amount):
@@ -162,5 +165,5 @@ class orderBookTrader:
         order_info = orderMan.getOrderInfo(symbol=symbol, order_id=order_id)
         return order_info['data'][0]['deal_amount']
 
-    def update_buy_journal(self):
-        a=0
+    def update_buy_journal(self,price,amount):
+        self.buyJournal.append({'price':price,'amount':amount})
