@@ -7,10 +7,11 @@ from datetime import datetime, timedelta
 import copy
 
 class AbstractAnalystMan:
-    def __init__(self, basicDataMan, marketMan,exchange,secondOrMili,nbProcess):
+    def __init__(self, basicDataMan, marketMan,exchange,secondOrMili,nbProcess,waveAnalyzer):
         # Initialize common attributes or perform common tasks
         self.basicDataMan = basicDataMan
         self.marketMan= marketMan
+        self.waveAnalyzer=waveAnalyzer
         self.exchange=exchange
         self.cg = CoinGeckoAPI()
         self.secondOrMili=secondOrMili
@@ -127,6 +128,7 @@ class AbstractAnalystMan:
                         dataBase.increment('volume4h',column='nbTransactionGap',newValue=str(self.volume[vol]['nbTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
                         dataBase.increment('volume4h',column='volumeTransactionGap',newValue=str(self.volume[vol]['volumeTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])                                   
                         dataBase.increment('volume4h',column='transactions',newValue='"'+str(self.volume[vol]['transactions'])+'"',condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
+                self.waveAnalyzer.run(symbols=symbol,dbManager=dataBase)
 
     def countVolume(self,nbOfFetch,timeUnity,addOnDb, symbol=None):
         dataBase=DbManager.DbManager()

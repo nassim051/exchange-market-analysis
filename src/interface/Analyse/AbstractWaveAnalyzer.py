@@ -43,12 +43,14 @@ class AbstractWaveAnalyzer(ABC):
     @abstractmethod
     def deleteFutures(result):
         pass
-    def run(self):
-        dbManager=DbManager.DbManager()
+    def run(self,symbols,dbManager):
+        if dbManager is None:
+            dbManager=DbManager.DbManager()
         dbManager.renitialise('wave')
-        result=self.basicDataMan.getAccuracyInfo()
-        result=self.extractSymbols(result)
-        symbols=self.deleteFutures(result)
+        if symbols is None:
+            result=self.basicDataMan.getAccuracyInfo()
+            result=self.extractSymbols(result)
+            symbols=self.deleteFutures(result)
         chunk_size = len(symbols) // self.numProcess
         processes = []
         for i in range(self.numProcess):

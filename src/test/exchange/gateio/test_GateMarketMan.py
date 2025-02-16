@@ -7,10 +7,10 @@ import exchange.gateio.GateMarketMan as gmm
 sys.path.pop(0)
 """
 import src.exchange.gateio.GateMarketMan as GateMarketMan
-@pytest.mark.skip
+#@pytest.mark.skip
 def test_get_depth_without_errors():
     gate_market_man = GateMarketMan.GateMarketMan()
-    result=gate_market_man.getDepth(symbol="BTC_USDT")
+    result=gate_market_man.getDepth(symbol="FTM_USDT")
     print(result)
 @pytest.mark.skip   
 def test_get_trades_without_errors():
@@ -21,7 +21,7 @@ def test_get_trades_without_errors():
         timeNow = str( timeNow.timestamp()  ).split( "." )[ 0 ]
         print(timeNow)
         time.sleep(10)
-        result=gate_market_man.getTrades(symbol="BTC_USDT",size=6,time=timeNow)
+        result=gate_market_man.getTrades(symbol="FTM_USDT",size=6,time=timeNow)
         print(result)
         print(timeNow)
         print(len(result))
@@ -33,7 +33,7 @@ def test_get_trades_without_errors():
     timeNow = str( timeNow.timestamp()  ).split( "." )[ 0 ]
     result=gate_market_man.getTrades(symbol="BTC_USDT",size=6,time=1693703829)
     print(result[0].time)
-#@pytest.mark.skip       
+@pytest.mark.skip       
 def test_kline():
     gate_market_man = GateMarketMan.GateMarketMan()
     result=gate_market_man.getKline(size=2,symbol="BTC_USDT",time=1712441738,type='hour1')

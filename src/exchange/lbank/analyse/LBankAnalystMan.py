@@ -7,12 +7,14 @@ import src.exchange.lbank.BasicDataMan as BasicDataMan
 import src.exchange.lbank.MarketMan as MarketMan
 from date_time_event import Untiltime
 from datetime import datetime, timedelta
+import src.exchange.lbank.analyse.LBankWaveAnalyzer as LBankWaveAnalyzer
 
 import src.Telegram.Telegram as Telegram
 class LBankAnalystMan(AbstractAnalystMan.AbstractAnalystMan):
         def __init__(self,nbProcess,key=1):
+                waveAnalyzer=LBankWaveAnalyzer.LBankWaveAnalyzer(nbHour=200,period=20,numProcess=1,numOfThreads=25,waveVolatility=5,timeFrame='hour4')
                 self.key=key
-                super().__init__(basicDataMan=BasicDataMan.BaseConfigMan(),marketMan=MarketMan.MarketMan(),exchange='lbank',secondOrMili=1000,nbProcess=nbProcess)
+                super().__init__(basicDataMan=BasicDataMan.BaseConfigMan(),marketMan=MarketMan.MarketMan(),exchange='lbank',secondOrMili=1000,nbProcess=nbProcess,waveAnalyzer=waveAnalyzer)
 
  
         def deleteFutures(self, pairs):

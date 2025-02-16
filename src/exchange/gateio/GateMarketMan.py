@@ -1,3 +1,4 @@
+import json
 import  os, sys, six
 import src.interface.IMarketMan as imm
 import src.exchange.gateio.models.OrderBook as modelOrderBook
@@ -388,9 +389,14 @@ class GateMarketMan(imm.IMarketMan):
             try:
                 response= self._list_order_book_with_http_info(currency_pair, **d)  # noqa: E501
             except Exception as e:
-                print('An exeption occured:'+str(e))
-                print("l'm going to sleep for 15 seconde")
-                time.sleep(15)
+    
+                if e.label== 'INVALID_CURRENCY':
+                    print("Error 400")
+                    return -1
+                else:
+                    print('An exeption occured:'+str(e))
+                    print("l'm going to sleep for 15 seconde")
+                    time.sleep(15)
             else:
                 break
         return modelOrderBook.editJsonResponse(response)
