@@ -207,4 +207,3 @@ class AbstractWaveAnalyzer(ABC):
         print(f"volatilité:{amplitude}")
         print(f"nbWave:{nbWave}")
         print(f"averageAmplitude of waves:{averageAmplitudeOfwaves}")
-        print(f"list of amplitude:{amplitudeWaves}")

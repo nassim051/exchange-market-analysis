@@ -162,7 +162,7 @@ def test_limite_price_buy():
     else:
         print(f"buy price:{buyprice}")
 
-
+@pytest.mark.skip(reason="Skipping the test for Gate IO API")
 def test_limite_price_sell():
     chase_amount=5000
     currency_pair_details = spot.get_currency_pair('DMC_USDT')   
@@ -196,3 +196,8 @@ bought_price=self.get_purchased_price()
                 if ask[1] >= chase_amount and ask[0] > limit_price and ask[0]>bought_price*1.01:
                     return ask[0] - self.priceAccuracy  # Just below the target
 """
+
+def test_trade():
+    traderMan=OrderBookTrader.OrderBookTrader(symbol='DMC_USDT',buyAmount=210,chase_amount=100)
+    traderMan.main()
+
