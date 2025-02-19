@@ -5,6 +5,7 @@ from datetime import datetime
 import src.exchange.mexc.models.OrderBook as modelOrderBook
 import src.exchange.mexc.models.Transaction as modelTransaction
 import time
+import json
 STANDARD_TIME_TO_MEXC_TIME_MAP = {
 'minute1': '1m',
 'minute5': '5m',
@@ -40,6 +41,7 @@ class MexcMarketMan(imm.IMarketMan):
                 print("l'm going to sleep for 15 seconde")
                 time.sleep(15)
             else:
+                print(f"response{response}")
                 break
         return modelTransaction.editJsonResponse(response)
     def getKline(self, **d):
@@ -56,6 +58,7 @@ class MexcMarketMan(imm.IMarketMan):
                 print("l'm going to sleep for 15 seconde")
                 time.sleep(15)
             else:
+                print(f"response{response}")
                 break
         return Kline.editJsonResponse(response)
     def getDepth(self, **d):
@@ -63,10 +66,14 @@ class MexcMarketMan(imm.IMarketMan):
             try:
                 response=self.spot.depth(symbol=d['symbol'],options={'limit':10})
             except Exception as e:
+                if str(e).__contains__('Invalid symbol.'):
+                    print(f"The order book is empty or the bot is not availible for this: {d['symbol']}")
+                    return -1
                 print('An exeption occured:'+str(e))
                 print("l'm going to sleep for 15 seconde")
                 time.sleep(15)
             else:
+                print(f"response{response}")
                 break
         return modelOrderBook.editJsonResponse(response)
 
