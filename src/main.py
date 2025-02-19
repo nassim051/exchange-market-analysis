@@ -76,7 +76,7 @@ def renitialiseVolumeTables():
 def newResearch():
     while True:
             print("New research (n)")
-            print("Pursue current research (p)")
+            print("Pursue curlrent research (p)")
             answer = input('Enter your choice (n/p)')
             if answer not in {'p', 'n'}:
                 print('Invalid entry, please retry.')

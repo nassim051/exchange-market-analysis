@@ -114,6 +114,7 @@ class AbstractAnalystMan:
                             break
                         time.sleep(60)
                 if addOnDb==True:
+                    print("l'll dd on db")
                     oldSymbol=dataBase.select_from_table('volume4h',['symbol'],[f'exchange="{self.exchange}"'])
                     oldSymbol=dataBase.turnToList(oldSymbol)
                     for vol in self.volume.keys():
@@ -128,6 +129,7 @@ class AbstractAnalystMan:
                         dataBase.increment('volume4h',column='nbTransactionGap',newValue=str(self.volume[vol]['nbTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
                         dataBase.increment('volume4h',column='volumeTransactionGap',newValue=str(self.volume[vol]['volumeTransactionGap']),condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])                                   
                         dataBase.increment('volume4h',column='transactions',newValue='"'+str(self.volume[vol]['transactions'])+'"',condition=[f"symbol='{vol}'",f"exchange='{self.exchange}'"])            
+                print('finished adding in db  l willl do wave')
                 self.waveAnalyzer.run(symbols=symbol,dbManager=dataBase)
 
     def countVolume(self,nbOfFetch,timeUnity,addOnDb, symbol=None):
@@ -152,7 +154,7 @@ class AbstractAnalystMan:
                 process = multiprocessing.Process(target=self.createThread, args=(args[0],args[1],args[2],args[3],args[4]))
                 processes.append(process)
                 process.start()
-                time.sleep(60)
+                time.sleep(300)
             # Wait for all processes to finish
             for process in processes:
                 process.join()
