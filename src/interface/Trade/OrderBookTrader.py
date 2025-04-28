@@ -1,14 +1,16 @@
 import os
 import sys
 import time
+import random
 from datetime import datetime, timedelta
 import src.interface.TA.TaMan as taMan
 from src.exchange.gateio.github.gate_api import ApiClient, Configuration
-import src.exchange.gateio.github.gate_api.api.spot_api as SpotApi
+from src.exchange.gateio.GateMarketManV2 import GateIoMarketManV2
 import src.db.DbManager as DbManager
 import src.exchange.gateio.Constants as credential
+from decimal import Decimal
 class OrderBookTrader:
-    def __init__(self,symbol,chase_amount,buyAmount=0,sellAmount=0,interval="4h",limit=20, sleepTime=15, durtationMinutes=1440):
+    def __init__(self,symbol,chase_amount,buyAmount=0,sellAmount=0,interval="4h",limit=20, sleepTime=15*60, durtationMinutes=60*72):
         self.symbol=symbol
         self.buyAmount=buyAmount
         self.chase_amount=chase_amount
@@ -23,8 +25,11 @@ class OrderBookTrader:
         self.buy_order_id=0
         self.sell_order_id=0
         self.order_book={}
-        config = Configuration(key=credential.key, secret=credential.secret)
-        self.spot_api = SpotApi.SpotApi(ApiClient(config))   
+        self.buy_order_book={}
+        self.sell_order_book={}
+        self.taMan= taMan.TaMan()
+        self.spot_api = GateIoMarketManV2()
+
         self.priceAccuracy=self.get_price_accuracy()
 
         self.dbManager= DbManager.DbManager()    
@@ -35,63 +40,85 @@ class OrderBookTrader:
 
         while datetime.now() < end_time:
             self.order_book=self.fetch_order_book()
-            if self.buyAmount > 0:
+            if self.buyAmount > 0 and self.buyAmount*self.order_book.bids[0][0]>3:
                 if self.is_order_pending(self.buy_order_id):
-                    order_info=self.get_order_info(self.buy_order_id)
-                    if self.order_executed(order_info, self.symbol, self.buyAmount):
+                    order_info=self.get_order(self.buy_order_id)
+                    if self.order_executed(order_info):
                         executed_amount = self.get_executed_amount(order_info, self.symbol)
+                        print(f"executed amount: {executed_amount}")
                         executed_price=self.get_executed_price(order_info,self.symbol)
+                        print(f"executed price: {executed_price}")
+
                         fee=self.get_fee(order_info)
 
                         self.add_from_buy_journal(executed_price,executed_amount,fee)
-                        self.sell_amount += executed_amount -fee
-                        self.buyAmount -= executed_amount*executed_price
-                        if self.buyAmount==0:
+                        print(f"buy journal : {self.buyJournal}")
+                        self.sellAmount += executed_amount -fee
+                        print(f"sell amount : {self.sellAmount}")
+                        self.buyAmount -= executed_amount
+                        print(f"buy amount : {self.buyAmount}")
+                        if executed_amount >= 0.99999 * self.buyAmount: 
+                            print("no buy order anymore")
                             self.buy_order_id=0
+                            self.buyAmount=0
                         else:
-                            self.cancel_order(self.symbol, self.buy_order_id)
-                            self.initialize_order("buy", self.buyAmount)
-                            buy_order_book=self.order_book
+                            self.cancel_order( self.buy_order_id,order_info)
+                            self.buy_order_id=self.initialize_order("buy", self.buyAmount)
+                            self.buy_order_book=self.order_book
                         self.nonPendingSell=True
-                    elif self.nonPendingBuy!=0 or self.order_book_has_changed(self.order_book, buy_order_book, 'buy') or self.order_executed(self.buy_order_id, self.symbol, self.buyAmount) :
-                        self.cancel_order(self.symbol, self.buy_order_id)
-                        self.initialize_order('buy', self.buyAmount)
-                        buy_order_book=self.order_book            
+                    elif self.nonPendingBuy or self.order_book_has_changed(order_info, 'buy') :
+                        print('order book has changed')
+                        self.cancel_order( self.buy_order_id,order_info)
+                        self.buy_order_id=self.initialize_order('buy', self.buyAmount)
+                        self.buy_order_book=self.order_book            
                         self.nonPendingBuy=False
+                    else:
+                        print('nothing changed after 15s')
                 else:
-                    self.initialize_order("buy", self.buyAmount)
-                    buy_order_book=self.order_book
+                    self.buy_order_id=self.initialize_order("buy", self.buyAmount)
+                    self.buy_order_book=self.order_book
                     self.nonPendingBuy=False
  
-            if self.sellAmount>0:
-                if self.is_order_pending(self.sell_amount):
-                    order_info=self.get_order_info(self.sell_order_id)
-                    if self.sell_order_id: 
-                        if self.order_executed(order_info, self.symbol, self.sell_amount):
-                            executed_amount = self.get_executed_amount(order_info, self.symbol)
-                            executed_price=self.get_executed_price(order_info,self.symbol)
-                            fee=self.get_fee(order_info)
-                            self.buyAmount += executed_amount*executed_price-fee
-                            self.remove_from_buy_journal(executed_price,executed_amount)
-                            self.sell_amount -= executed_amount
-                            if self.sell_amount==0:
-                                self.sell_order_id=0
-                            else:
-                                self.cancel_order(self.symbol, self.sell_order_id)
-                                self.initialize_order("sell", self.buyAmount)
-                                sell_order_book=self.order_book
-                            self.nonPendingBuy=True
-                            
-                        elif self.nonPendingSell!=0 or self.order_book_has_changed(self.order_book, sell_order_book, 'sell') or self.order_executed(self.sell_order_id, self.symbol, self.sell_amount) :
-                            self.cancel_order(self.symbol, self.sell_order_id)
-                            self.initialize_order('sell', self.sell_amount)
-                            sell_order_book=self.order_book
-                            self.nonPendingSell=False
+            if self.sellAmount>0 and self.sellAmount*self.order_book.asks[0][0]>3.5:
+                if self.is_order_pending(self.sell_order_id):
+                    order_info=self.get_order(self.sell_order_id)
+                    if self.order_executed(order_info):
+                        executed_amount = self.get_executed_amount(order_info, self.symbol)
+                        print(f"executed amount {executed_amount}")
+                        executed_price=self.get_executed_price(order_info,self.symbol)
+                        print(f"executed price {executed_price}")
 
-                    else:
-                        self.initialize_order("sell", self.sellAmount)
-                        sell_order_book=self.order_book
+                        fee=self.get_fee(order_info)
+                        print(f"sell fee: {fee}")
+                        print(f"buy amount was:{self.buyAmount}")
+                        new_buy_amount_usdt= executed_amount*executed_price-fee
+                        self.buyAmount += new_buy_amount_usdt/executed_price
+                        print(f"new amount now is:{self.buyAmount}")
+                        self.remove_from_buy_journal(executed_price,executed_amount)
+                        print(f"Buy journal after removing from it:{self.buyJournal}")
+                        self.sellAmount -= executed_amount
+                        print(f"sell amount is: {self.sellAmount}")
+
+                        if executed_amount >= 0.99999 * self.sellAmount:
+                            self.sell_order_id=0
+                            self.sellAmount=0
+                        else:
+                            self.cancel_order( self.sell_order_id,order_info)
+                            self.sell_order_id=self.initialize_order("sell", self.buyAmount)
+                            self.sell_order_book=self.order_book
+                        self.nonPendingBuy=True
+                        continue
+                        
+                    elif self.nonPendingSell or self.order_book_has_changed(order_info, 'sell')  :
+                        self.cancel_order( self.sell_order_id,order_info)
+                        self.sell_order_id=self.initialize_order('sell', self.sellAmount)
+                        self.sell_order_book=self.order_book
                         self.nonPendingSell=False
+
+                else:
+                    self.sell_order_id=self.initialize_order("sell", self.sellAmount)
+                    self.sell_order_book=self.order_book
+                    self.nonPendingSell=False
             time.sleep(self.sleepTime)
 
 
@@ -102,82 +129,112 @@ class OrderBookTrader:
 
     def calculate_max_buy_price(self):
         prices = self.spot_api.list_candlesticks(currency_pair=self.symbol, interval=self.interval, limit=self.limit)
-        return taMan.TaMan(prices).calculate_bollinger_bands()['lower_band']
+        bands = taMan.TaMan().calculate_bollinger_bands(prices)
+        lower = bands['lower_band']
+        middle = bands['middle_band']
+        return lower + 0.2 * (middle - lower)
+
     def calculate_min_sell_price(self):
         prices = self.spot_api.list_candlesticks(currency_pair=self.symbol, interval=self.interval, limit=self.limit)
-        return taMan.TaMan().calculate_bollinger_bands(prices)['upper_band']
-   
- 
+        bands = taMan.TaMan().calculate_bollinger_bands(prices)
+        upper = bands['upper_band']
+        middle = bands['middle_band']
+        return upper - 0.5 * (upper - middle)
 
-    def find_target_price(self,order_book, type, limit_price):
-        if type == 'buy':
-            for bid in order_book.bids:
-                if bid[1] >= self.chase_amount and bid[0] < limit_price:
-                    return bid[0] + self.priceAccuracy  # Just above the target
-        elif type == 'sell':
-            bought_price=self.get_purchased_price()
-            for ask in order_book.asks:
-                if ask[1] >= self.chase_amount and ask[0] > limit_price and ask[0]>bought_price*1.01:
-                    return ask[0] - self.priceAccuracy  # Just below the target
-        return None
+
+    def find_target_price(self, order_book, order_type, limit_price):
+            if order_type == 'buy':
+   #             return 0, 0.002935
+                for index, bid in enumerate(order_book.bids):
+                    if bid[1] >= self.chase_amount and bid[0] < limit_price:
+                        print(type(index))
+                        print(type(bid[0]))
+                        print(f"l'll place an order in {bid[0]}+{self.priceAccuracy}")
+                        return index, float(Decimal(str(bid[0])) + Decimal(str(self.priceAccuracy)))  # Just above the target
+            elif order_type == 'sell':
+    #            return 0, 0.003042
+                bought_price = self.get_purchased_price()
+                for index, ask in enumerate(order_book.asks):
+                    if ask[1] >= self.chase_amount and ask[0] > limit_price and ask[0] > bought_price * 1.01:
+                        return index, float(Decimal(str(ask[0])) - Decimal(str(self.priceAccuracy)))  # Just below the target
+            
+            return None, None
 
     def execute_order(self, side, price, amount):
-        while True:
-            try:
-                order = self.spot_api.create_order(
-                    order={"currency_pair":self.symbol,
-                    "side":side,
-                    "type":'limit',  
-                    "price":str(price),
-                    "amount":str(amount)}
-                )
-                print(f"Order executed: {side} {amount} at {price}")
-                print(f"{order}")
-                return order.id
-            except Exception as e:
-                print(f"Failed to execute order: {e} l'll retry after 15 seconds")
-                time.sleep(15)
+        visible_amount = self.get_visible_amount(amount)
+
+        order = self.spot_api.create_order(
+            order={"currency_pair":self.symbol,
+            "side":side,
+            "type":'limit',  
+            "price":str(price),
+            "amount":str(amount),
+            "iceberg":str(visible_amount),}
+        )
+        print(f"Order creted: {side} {amount} at {price}")
+    
+        return order.id
+
 
     def update_order_book(self,order_book, type, index, price, amount):
         if type == 'buy':
             if order_book.bids[index][0] == price:
                 order_book.bids[index][1] += amount
+
             else:
                 order_book.bids.insert(index, [price, amount])
+
+
         elif type == 'sell':
             if order_book.asks[index][0] == price:
                 order_book.asks[index][1] += amount
             else:
                 order_book.asks.insert(index, [price, amount])
         self.order_book=order_book
-
-    def order_book_has_changed(self,order_info, ob1, ob2, type):
+    def remove_order_from_book(self, type, price, amount):
+            if type == 'buy':
+                for index, bid in enumerate(self.order_book.bids):
+                    if bid[0] == price:
+                        bid[1] -= amount
+                        if bid[1] <= 0:
+                            del self.order_book.bids[index]
+                        break
+            elif type == 'sell':
+                for index, ask in enumerate(self.order_book.asks):
+                    if ask[0] == price:
+                        ask[1] -= amount
+                        if ask[1] <= 0:
+                            del self.order_book.asks[index]
+                        break
+    def order_book_has_changed(self,order_info, type):
         if type == 'buy':
-            for i in range(min(len(ob1.bids), len(ob2.bids))):
-                if ob2.bids[i][0] < order_info['data'][0]['price'] * 0.95:
+            for i in range(min(len(self.buy_order_book.bids), len(self.order_book.bids))):
+                if self.order_book.bids[i][0] < order_info.price * 0.95:
                     break
-                if ob1.bids[i][0] != ob2.bids[i][0]:
+                if self.buy_order_book.bids[i][0] != self.order_book.bids[i][0]:
                     return True
             return False
         elif type == 'sell':
-            for i in range(min(len(ob1.asks), len(ob2.asks))):
-                if ob2.asks[i][0] > order_info['data'][0]['price'] * 1.05:
+            for i in range(min(len(self.sell_order_book.asks), len(self.order_book.asks))):
+                if self.order_book.asks[i][0] > order_info.price * 1.05:
                     break
-                if ob1.asks[i][0] != ob2.asks[i][0]:
+                if self.sell_order_book.asks[i][0] != self.order_book.asks[i][0]:
                     return True
             return False
         return False
 
 
-    def cancel_order(self, order_id):
+    def cancel_order(self, order_id,order_info):
         while True:
             try:
                 self.spot_api.cancel_order(order_id, self.symbol)
                 print(f"Order {order_id} cancelled.")
-                return
+                break
+
             except Exception as e:
                 print(f"Failed to cancel order: {e}, l'll sleep for 15 seconds")
                 time.sleep(15)
+        self.remove_order_from_book(order_info.side,order_info.price,order_info.amount)
 
     def update_amounts(self,order_type, amount, buy_quant, sell_quant, deal_amount, executed_order):
         amount -= (deal_amount - executed_order)
@@ -192,22 +249,22 @@ class OrderBookTrader:
             limit_price=self.calculate_max_buy_price()
         else:
             limit_price=self.calculate_min_sell_price()        
-        price = self.find_target_price(self.order_book, order_type, limit_price)
-
-        self.order_id = self.execute_order( order_type, price, amount)
-        self.update_order_book(self.order_book, order_type, 0, price, amount)
+        index,price = self.find_target_price(self.order_book, order_type, limit_price)
+        order_id = self.execute_order( order_type,  str(Decimal(str(price))), amount)
+        self.update_order_book(self.order_book, order_type, index, price, amount)
+        return order_id
         
 
-    def order_executed(self, order_info, symbol, amount):
+    def order_executed(self, order_info):
         return order_info.fill_price > 0
  
     def get_executed_amount(self,order_info, symbol):
-        return self.fill_price/self.price
+        return order_info.fill_price/order_info.price
     def get_executed_price(self,order_info, symbol):
         return order_info.price
-    def get_fee(self,order_info):
+    def get_fee(self,order_info): ##info in sell fee currency in usdt, in buy, fee currense in asset token
         return order_info.fee
-    def add_from_buy_journal(self, price, amount,fee):
+    def add_from_buy_journal(self, price, amount,fee): 
         price=price*amount/(amount-fee)
         self.buyJournal.append({'price': price, 'amount': amount-fee})
     def remove_from_buy_journal(self, price, amount):
@@ -234,16 +291,16 @@ class OrderBookTrader:
         return order_id!=0
 
     
-    def get_order_info(self, order_id):
+    def get_order(self, order_id):
         while True:
             try:
                 order = self.spot_api.get_order(order_id, self.symbol)
-                return {
-                    'id': order.id,
-                    'status': order.status,
-                    'filled_amount': float(order.filled_total),
-                    'price': float(order.price)
-                }
+                order.fill_price=float(order.fill_price)
+                order.amount=float(order.amount)
+                order.fee=float(order.fee)
+                order.price=float(order.price)
+
+                return order
             except Exception as e:
                 print(f"Failed to fetch order info: {e} l'll retry after 15 seconds")
                 time.sleep(15)
@@ -273,7 +330,24 @@ class OrderBookTrader:
                     time.sleep(15)
             except Exception as e:
                 print(f"Failed to fetch market price for {symbol}: {e}, I'll sleep for 15 seconds")
-                time.sleep(15)
+                time.sleep(15*60)
 
     def get_quote_amount(self,base_amount):
         return 1
+    
+
+
+
+
+    def get_visible_amount(self,total_amount):
+        """
+        Returns a random visible portion of an iceberg order,
+        between 1/20 and 1/10 of the total order amount.
+        
+        Works with floats.
+        """
+        min_visible = total_amount / 20
+        max_visible = total_amount / 10
+        return round(random.uniform(min_visible, max_visible), 8) 
+
+    

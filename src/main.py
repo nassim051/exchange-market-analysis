@@ -6,8 +6,13 @@ import src.exchange.lbank.analyse.LBankWaveAnalyzer as LBankWaveAnalyzer
 import src.exchange.gateio.Analyse.GateioWaveAnalyzer as GateioWaveAnalyzer
 import src.exchange.mexc.Analyse.MexcWaveAnalyzer as MexcWaveAnalyzer
 import src.exchange.binance.Analyse.BinanceWaveAnalyzer as BinanceWaveAnalyzer
+import src.exchange.bitmart.Analyse.BitMartAnalystMan as BitMartAnalystMan
+import src.exchange.bitmart.Analyse.BitMartWaveAnalyzer as BitMartWaveAnalyzer
 import  src.Telegram.Telegram as Telegram
 import src.db.DbManager as DbManager
+import src.exchange.Xt.Analyse.XtAnalystMan as XtAnalystMan
+import src.exchange.Xt.Analyse.XtWaveAnalyzer as XtWaveAnalyzer
+
 import sys
 TIME_FRAMES = [
     'minute5', 'minute15', 'minute30', 'hour1', 'hour4', 'hour8', 'hour12', 'day1', 'week1', 'month1'
@@ -86,6 +91,65 @@ def newResearch():
         return True
     else:
         return False
+def searchInXt():
+    option = showOptions()
+    if option == 'v':
+        nbProcess = getNbProcess()
+        xt = XtAnalystMan.XtAnalystMan(nbProcess=nbProcess)
+        lunchNewResearch = newResearch()
+        if lunchNewResearch:
+            renitialiseVolumeTables()
+            xt.updatePairs()
+            xt.findTokenWithGap()
+        xt.countVolume(240, 60, True)
+        Telegram.Telegram('Database').send_file()
+
+    elif option == 'w':
+        nbProcess = getNbProcess()
+        nbThreads = getNbThreads()
+        waveAmplitude = getWaveMinimumAmplitude()
+        timeFrame = getTimeFrame()
+        nbHours = getNbHours()
+        period = getPeriode()
+        XtWaveAnalyzer.XtWaveAnalyzer(
+            nbHour=nbHours,
+            period=period,
+            numProcess=nbProcess,
+            numOfThreads=nbThreads,
+            waveVolatility=waveAmplitude,
+            timeFrame=timeFrame
+        ).run()
+
+def searchInBitMart():
+    option = showOptions()
+    if option == 'v':
+        nbProcess = getNbProcess()
+        bitmart = BitMartAnalystMan.BitMartAnalystMan(nbProcess=nbProcess)
+        lunchNewResearch = newResearch()
+        if lunchNewResearch:
+            renitialiseVolumeTables()
+            bitmart.updatePairs()
+            bitmart.findTokenWithGap()
+        bitmart.countVolume(240, 60, True)
+        Telegram.Telegram('Database').send_file()
+
+    elif option == 'w':
+        nbProcess = getNbProcess()
+        nbThreads = getNbThreads()
+        waveAmplitude = getWaveMinimumAmplitude()
+        timeFrame = getTimeFrame()
+        nbHours = getNbHours()
+        period = getPeriode()
+        BitMartWaveAnalyzer.BitMartWaveAnalyzer(
+            nbHour=nbHours,
+            period=period,
+            numProcess=nbProcess,
+            numOfThreads=nbThreads,
+            waveVolatility=waveAmplitude,
+            timeFrame=timeFrame
+        ).run()
+
+
 def searchInLBank():
     option=showOptions()
     if option=='v':
@@ -230,20 +294,28 @@ if __name__=='__main__':
     while True:
         print("Search in LBank tap (l)")
         print("Search in GateIo tap (g)")
-        print("Search in GateIo tap (m)")
-        print("Search in binance tap (b)")
-        answer=input('Tap your answer\n')
-        if answer!='l' and answer!='g' and answer!='m' and answer!='b':
+        print("Search in MEXC tap (m)")
+        print("Search in Binance tap (b)")
+        print("Search in BitMart tap (bm)")
+        print("Search in XT.com tap (xt)")
+
+        answer = input('Tap your answer\n')
+        if answer not in {'l', 'g', 'm', 'b', 'bm','xt'}:
             print('Invalid entry, please retry.')
             continue
         else:
             break
-    
+
     if answer == "l":
-        searchInLBank() 
-    elif answer == "g":       
+        searchInLBank()
+    elif answer == "g":
         searchInGate()
     elif answer == "m":
         searchInMexc()
-    elif answer=="b":
+    elif answer == "b":
         searchInBinance()
+    elif answer == "bm":
+        searchInBitMart()
+    elif answer == "xt":
+        searchInXt()
+

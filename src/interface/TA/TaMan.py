@@ -2,34 +2,28 @@ import numpy as np
 import pandas as pd
 
 class TaMan:
-    def __init__(self, price_data):
-        """
-        Initialize with price data.
-        :param price_data: List of lists, where each sublist represents a candle.
-        """
-        self.price_data = price_data
-        self.closing_prices = self._extract_closing_prices()
 
-    def _extract_closing_prices(self):
+    def _extract_closing_prices(self,price_data):
         """
         Extract closing prices from the price data.
         :return: pandas Series of closing prices.
         """
-        closing_prices = [float(candle[2]) for candle in self.price_data]  # Closing price is the 3rd element (index 2)
+        closing_prices = [float(candle[2]) for candle in price_data]  # Closing price is the 3rd element (index 2)
         return pd.Series(closing_prices)
 
-    def calculate_bollinger_bands(self, window=20):
+    def calculate_bollinger_bands(self,price_data, window=20):
         """
         Calculate Bollinger Bands for the last candle based on previous candles.
         :param window: int, the window size for moving average and standard deviation.
         :return: dict, containing lower, middle, and upper bands for the last candle.
         """
-        if len(self.closing_prices) < window:
+        closing_prices = self._extract_closing_prices(price_data)
+        if len(closing_prices) < window:
             raise ValueError("Not enough data to calculate Bollinger Bands. Need at least `window` candles.")
 
         # Calculate Bollinger Bands
-        middle_band = self.closing_prices.rolling(window=window).mean()
-        std_dev = self.closing_prices.rolling(window=window).std()
+        middle_band = closing_prices.rolling(window=window).mean()
+        std_dev = closing_prices.rolling(window=window).std()
         upper_band = middle_band + (std_dev * 2)
         lower_band = middle_band - (std_dev * 2)
 

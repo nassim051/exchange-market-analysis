@@ -1,0 +1,8 @@
+In order_book has changed for i in len(min (self.order_book,self.buy_order_book))---> case if order book become empty 
+
+trede amount will decrease with fees, we have to update trade amount after certain time of trading for exemple 50 here is exemple of how to do ti:
+if butAmount>0 and buyAmount + sellAmout <5% of initialAmount:
+    buyAmount+=initialAmout-sellAmount-buyAmount
+
+-Of course if you find better thing do it  
+-If my bot work, do a better design for the code

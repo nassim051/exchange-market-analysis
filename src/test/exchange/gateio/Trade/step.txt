@@ -1,0 +1,7 @@
+execute buy order
+look on:
+  how would be journal
+  how would be sell order, sellAmount, buyAmount, executed amount, executed price
+we expect buy amount be the same as what we put ( kon nbi3 lrohi 10 hebet dmc, executed amount 10 hebet we don't take fee into account)
+executed price the same
+

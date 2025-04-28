@@ -43,7 +43,7 @@ class AbstractWaveAnalyzer(ABC):
     @abstractmethod
     def deleteFutures(result):
         pass
-    def run(self,symbols,dbManager):
+    def run(self,symbols=None,dbManager=None):
         if dbManager is None:
             dbManager=DbManager.DbManager()
         dbManager.renitialise('wave')

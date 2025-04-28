@@ -25,7 +25,7 @@ def test_price_accuracy():
     print(f"precision: {currency_pair_details.precision}")    
 @pytest.mark.skip(reason="Skipping the test for Gate IO API")
 def test_order_book():
-    order_book = spot.list_order_book('DMC_USDT', limit=10)
+    order_book = spot.list_order_book('ASW_USDT', limit=100)
 
     order_book_updated={
                     'bids': [(float(b[0]), float(b[1])) for b in order_book.bids],
@@ -47,7 +47,7 @@ def test_time():
 
 @pytest.mark.skip(reason="Skipping the test for Gate IO API")
 def test_get_order_info():
-    order = spot.get_order(775824841017, 'DMC_USDT')
+    order = spot.get_order(796822802096, 'DMC_USDT')
     print(order)
 
 @pytest.mark.skip(reason="Skipping the test for Gate IO API")
@@ -196,8 +196,8 @@ bought_price=self.get_purchased_price()
                 if ask[1] >= chase_amount and ask[0] > limit_price and ask[0]>bought_price*1.01:
                     return ask[0] - self.priceAccuracy  # Just below the target
 """
-
+#@pytest.mark.skip(reason="Skipping the test for Gate IO API")
 def test_trade():
-    traderMan=OrderBookTrader.OrderBookTrader(symbol='DMC_USDT',buyAmount=210,chase_amount=100)
+    traderMan=OrderBookTrader.OrderBookTrader(symbol='ASW_USDT',buyAmount=8474576,chase_amount=800000)
     traderMan.main()
 
