@@ -31,11 +31,11 @@ def test_get_trades_with_time():
 def test_get_kline():
     market_man = XtMarketMan()
     
-    start_time_ms = int((datetime.now() - timedelta(hours=24)).timestamp() * 1000)
+    start_time_ms = int((datetime.now() - timedelta(hours=200)).timestamp() * 1000)
     now_ms = int(time.time() * 1000)
 
     klines = market_man.getKline(
-        symbol="BTC_USDT",
+        symbol="leo_usdt",
         type="1h",
 
         time=start_time_ms
@@ -45,5 +45,3 @@ def test_get_kline():
     print(int(klines[len(klines)-1].time)+int(timedelta(hours=1).total_seconds())*1000<now_ms and len(klines)!=0)
     print(klines[len(klines)-1].time)
 
-
- 

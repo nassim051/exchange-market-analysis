@@ -98,7 +98,6 @@ class XtMarketMan(IMarketMan):
 
             return []
 
-
     def getKline(self, **d):
         symbol = d.get("symbol")
         if not symbol:
@@ -112,20 +111,21 @@ class XtMarketMan(IMarketMan):
         }
 
         now_ms = int(time.time() * 1000)
-        start_time_ms = d["time"]
+        start_time_ms = d.get("time")
         interval_ms = INTERVAL_TO_MS.get(interval)
-        
-        if not interval_ms:
-            raise ValueError(f"Unknown interval {interval}")
-        
-        elapsed_ms = now_ms - start_time_ms
-        size = max(1, elapsed_ms // interval_ms)  # minimum 1 to avoid 0
-        params["limit"] = int(size)
+
+        if start_time_ms and interval_ms:
+            elapsed_ms = now_ms - start_time_ms
+            size = max(1, elapsed_ms // interval_ms)  # minimum 1
+            params["limit"] = int(size)
+
         try:
             response = self.client.get_kline(**params)
+
+            # Reverse because XT.com returns newest ➔ oldest
             response = list(reversed(response))
 
-            return [SimpleNamespace(
+            klines = [SimpleNamespace(
                 time=float(k['t']),
                 open=float(k['o']),
                 high=float(k['h']),
@@ -133,6 +133,23 @@ class XtMarketMan(IMarketMan):
                 close=float(k['c']),
                 volume=float(k['v'])
             ) for k in response]
+
+            if klines:
+                # HACK: duplicate the last kline with actual current time
+                last_kline = klines[-1]
+                now_ms = int(time.time() * 1000)
+                fake_kline = SimpleNamespace(
+                    time=float(now_ms),
+                    open=last_kline.open,
+                    high=last_kline.high,
+                    low=last_kline.low,
+                    close=last_kline.close,
+                    volume=last_kline.volume
+                )
+                klines.append(fake_kline)
+
+            return klines
+
         except Exception as e:
             print(f"Error in getKline: {e}, symbol: {symbol}, params: {params}")
             return []
