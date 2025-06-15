@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-import src.interface.Trade.OrderBookTrader as OrderBookTrader
+import src.interface.Trade.pairTradingController as PairTradingController
 import pytest, os, sys
 from src.exchange.gateio.github.gate_api import ApiClient, Configuration
 import src.exchange.gateio.github.gate_api.api.spot_api as SpotApi
@@ -198,6 +198,7 @@ bought_price=self.get_purchased_price()
 """
 #@pytest.mark.skip(reason="Skipping the test for Gate IO API")
 def test_trade():
-    traderMan=OrderBookTrader.OrderBookTrader(symbol='ASW_USDT',buyAmount=8474576,chase_amount=800000)
-    traderMan.main()
+    tradingController=PairTradingController.PairTradingController()
+    tradingController.run()
+    #symbol='ASW_USDT',buyAmount=8474576,chase_amount=800000
 

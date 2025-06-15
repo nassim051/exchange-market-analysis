@@ -10,14 +10,12 @@ import src.db.DbManager as DbManager
 import src.exchange.gateio.Constants as credential
 from decimal import Decimal
 class OrderBookTrader:
-    def __init__(self,symbol,chase_amount,buyAmount=0,sellAmount=0,interval="4h",limit=20, sleepTime=15*60, durtationMinutes=60*72):
+    def __init__(self,symbol,chase_amount,buyAmount=0,sellAmount=0,interval="4h",limit=20):
         self.symbol=symbol
         self.buyAmount=buyAmount
         self.chase_amount=chase_amount
         self.initial_buy_amount=self.buyAmount
         self.sellAmount=sellAmount
-        self.sleepTime=sleepTime
-        self.durtationMinutes=durtationMinutes
         self.buyJournal=[]
         self.averageBuy=0
         self.nonPendingBuy=False
@@ -36,9 +34,6 @@ class OrderBookTrader:
         self.interval=interval
         self.limit=limit
     def main(self):
-        end_time = datetime.now() + timedelta(minutes=self.durtationMinutes)
-
-        while datetime.now() < end_time:
             self.order_book=self.fetch_order_book()
             if self.buyAmount > 0 and self.buyAmount*self.order_book.bids[0][0]>3:
                 if self.is_order_pending(self.buy_order_id):
@@ -107,7 +102,7 @@ class OrderBookTrader:
                             self.sell_order_id=self.initialize_order("sell", self.buyAmount)
                             self.sell_order_book=self.order_book
                         self.nonPendingBuy=True
-                        continue
+                        return
                         
                     elif self.nonPendingSell or self.order_book_has_changed(order_info, 'sell')  :
                         self.cancel_order( self.sell_order_id,order_info)
@@ -119,7 +114,7 @@ class OrderBookTrader:
                     self.sell_order_id=self.initialize_order("sell", self.sellAmount)
                     self.sell_order_book=self.order_book
                     self.nonPendingSell=False
-            time.sleep(self.sleepTime)
+
 
 
     def get_price_accuracy(self):
@@ -349,5 +344,11 @@ class OrderBookTrader:
         min_visible = total_amount / 20
         max_visible = total_amount / 10
         return round(random.uniform(min_visible, max_visible), 8) 
-
     
+
+    def stop(self):
+        print(f"Stopping trader for {self.symbol}")
+        if self.buy_order_id != 0:
+            self.spot_api.cancel_order(self.buy_order_id, self.symbol)
+        if self.sell_order_id != 0:
+            self.spot_api.cancel_order(self.sell_order_id, self.symbol)
