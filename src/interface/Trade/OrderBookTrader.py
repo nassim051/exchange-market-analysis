@@ -10,7 +10,7 @@ import src.db.DbManager as DbManager
 import src.exchange.gateio.Constants as credential
 from decimal import Decimal
 class OrderBookTrader:
-    def __init__(self,symbol,chase_amount,buyAmount=0,sellAmount=0,interval="4h",limit=20):
+    def __init__(self,symbol,chase_amount,buyAmount=0,sellAmount=0,interval="4h",limit=20,strategy='range'):
         self.symbol=symbol
         self.buyAmount=buyAmount
         self.chase_amount=chase_amount
@@ -27,6 +27,7 @@ class OrderBookTrader:
         self.sell_order_book={}
         self.taMan= taMan.TaMan()
         self.spot_api = GateIoMarketManV2()
+        self.strategy=strategy
 
         self.priceAccuracy=self.get_price_accuracy()
 
@@ -127,14 +128,19 @@ class OrderBookTrader:
         bands = taMan.TaMan().calculate_bollinger_bands(prices)
         lower = bands['lower_band']
         middle = bands['middle_band']
-        return lower + 0.2 * (middle - lower)
+        if self.strategy == 'range':
+            return lower + 0.2 * (middle - lower)
+        return lower - 0.05 * (middle - lower)
 
     def calculate_min_sell_price(self):
         prices = self.spot_api.list_candlesticks(currency_pair=self.symbol, interval=self.interval, limit=self.limit)
         bands = taMan.TaMan().calculate_bollinger_bands(prices)
         upper = bands['upper_band']
         middle = bands['middle_band']
-        return upper - 0.5 * (upper - middle)
+        lower = bands['lower_band']
+        if self.strategy == 'range':
+            return upper - 0.5 * (upper - middle)
+        return middle - 0.05 * (middle - lower)
 
 
     def find_target_price(self, order_book, order_type, limit_price):
