@@ -1,17 +1,17 @@
-import src.exchange.gateio.Analyse.GateioAnalystMan as GateioAnalystMan
 import src.exchange.lbank.analyse.LBankAnalystMan as LBankAnalystMan
+import src.exchange.gateio.Analyse.GateioAnalystMan as GateioAnalystMan
+
 import src.exchange.mexc.Analyse.MexcAnalystMan as MexcAnalystMan
 from src.exchange.binance.Analyse import VolumeChangeAlert_AllPairs,VolumeChangeAlert_OnePair,WebSocketVolumeChangeAlert
 import src.exchange.lbank.analyse.LBankWaveAnalyzer as LBankWaveAnalyzer
 import src.exchange.gateio.Analyse.GateioWaveAnalyzer as GateioWaveAnalyzer
 import src.exchange.mexc.Analyse.MexcWaveAnalyzer as MexcWaveAnalyzer
-import src.exchange.binance.Analyse.BinanceWaveAnalyzer as BinanceWaveAnalyzer
-import src.exchange.bitmart.Analyse.BitMartAnalystMan as BitMartAnalystMan
 import src.exchange.bitmart.Analyse.BitMartWaveAnalyzer as BitMartWaveAnalyzer
+
+import src.exchange.binance.Analyse.BinanceWaveAnalyzer as BinanceWaveAnalyzer
 import  src.Telegram.Telegram as Telegram
 import src.db.DbManager as DbManager
-import src.exchange.Xt.Analyse.XtAnalystMan as XtAnalystMan
-import src.exchange.Xt.Analyse.XtWaveAnalyzer as XtWaveAnalyzer
+
 
 import sys
 TIME_FRAMES = [

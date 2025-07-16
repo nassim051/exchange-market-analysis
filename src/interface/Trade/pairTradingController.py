@@ -20,10 +20,10 @@ class PairTradingController:
         self.durationMinute = durationMinutes
 
     def _add_trader(self, symbol, chase_amount, buyAmount=0, sellAmount=0,
-                    interval="4h"):
+                    interval="4h",strategy="down"):
         trader = OrderBookTrader.OrderBookTrader(
-            symbol, chase_amount, buyAmount, sellAmount,
-            interval
+            symbol=symbol, chase_amount=chase_amount, buyAmount=buyAmount, sellAmount=sellAmount,
+            interval=interval,strategy=strategy
         )
         with self.lock:
             self.traders.append(trader)
@@ -50,9 +50,10 @@ class PairTradingController:
                     buyAmount = float(input("Buy amount (default 0): ") or 0)
                     sellAmount = float(input("Sell amount (default 0): ") or 0)
                     interval = input("Interval (default 4h): ") or "4h"
- 
+                    strategy = input("Strategy (default down) choose between down, range: ") or "range"
+
                     self._add_trader(symbol, chase_amount, buyAmount, sellAmount,
-                                     interval)
+                                     interval,strategy)
                 except Exception as e:
                     print(f"[!] Failed to add trader: {e}")
             elif action == "remove":
