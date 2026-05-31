@@ -7,9 +7,9 @@ from date_time_event import Untiltime
 from datetime import datetime, timedelta
 
 class MexcWaveAnalyzer(AbstractWaveAnalyzer.AbstractWaveAnalyzer):
-        def __init__(self,numProcess,numOfThreads,nbHour,timeFrame,waveVolatility,period,key=1):
+        def __init__(self,numProcess,numOfThreads,nbHour,timeFrame,waveVolatility,period,key=1,startDate=None,endDate=None):
                 self.key=key
-                super().__init__(size=1000,period=period,basicDataMan=BasicDataMan.MexcBasicDataMan(),marketMan=MarketMan.MexcMarketMan(),exchange='mexc',secondOrMili=1000,numProcess=numProcess,numOfThreads=numOfThreads,nbHour=nbHour,timeFrame=timeFrame,waveVolatility=waveVolatility)
+                super().__init__(size=1000,period=period,basicDataMan=BasicDataMan.MexcBasicDataMan(),marketMan=MarketMan.MexcMarketMan(),exchange='mexc',secondOrMili=1000,numProcess=numProcess,numOfThreads=numOfThreads,nbHour=nbHour,timeFrame=timeFrame,waveVolatility=waveVolatility,startDate=startDate,endDate=endDate)
 
         def deleteFutures(self, pairs):
             return pairs

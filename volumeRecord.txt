@@ -1,1 +1,0 @@
-2024-04-19 21:14:57: Volume change alert (Decrease) for BTCUSDT: 0.5014%. Volume:4335954667.206291 from 64572.05 to 64397.93

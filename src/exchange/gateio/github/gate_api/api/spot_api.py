@@ -881,7 +881,6 @@ class SpotApi(object):
         :return: If the method is called asynchronously,
                  returns the request thread.
         """
-
         local_var_params = locals()
 
         all_params = ['currency_pair', 'limit', '_from', 'to', 'interval']
@@ -901,6 +900,7 @@ class SpotApi(object):
             raise ApiValueError(
                 "Missing the required parameter `currency_pair` when calling `list_candlesticks`"
             )  # noqa: E501
+#        print(local_var_params['limit'])
 
         if (
             self.api_client.client_side_validation and 'limit' in local_var_params and local_var_params[

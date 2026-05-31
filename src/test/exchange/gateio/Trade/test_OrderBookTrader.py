@@ -198,7 +198,8 @@ bought_price=self.get_purchased_price()
 """
 #@pytest.mark.skip(reason="Skipping the test for Gate IO API")
 def test_trade():
-    tradingController=PairTradingController.PairTradingController()
+    tradingController = PairTradingController.PairTradingController(
+    )
     tradingController.run()
     #symbol='ASW_USDT',buyAmount=8474576,chase_amount=800000
 

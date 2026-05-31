@@ -4,7 +4,7 @@ from src.exchange.Xt.XtBasicDataMan import XtBasicDataMan
 from src.exchange.Xt.XtMarketMan import XtMarketMan
 
 class XtWaveAnalyzer(AbstractWaveAnalyzer):
-    def __init__(self, numProcess, numOfThreads, nbHour, timeFrame, waveVolatility, period):
+    def __init__(self, numProcess, numOfThreads, nbHour, timeFrame, waveVolatility, period, startDate=None, endDate=None):
         super().__init__(
             size=1000,
             period=period,
@@ -16,7 +16,9 @@ class XtWaveAnalyzer(AbstractWaveAnalyzer):
             numOfThreads=numOfThreads,
             nbHour=nbHour,
             timeFrame=timeFrame,
-            waveVolatility=waveVolatility
+            waveVolatility=waveVolatility,
+            startDate=startDate,
+            endDate=endDate
         )
 
     def deleteFutures(self, pairs):

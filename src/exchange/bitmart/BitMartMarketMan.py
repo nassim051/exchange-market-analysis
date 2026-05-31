@@ -52,9 +52,9 @@ class BitMartMarketMan(imm.IMarketMan):
                 klines.append(SimpleNamespace(
                     time=int(k[0]),
                     open=float(k[1]),
-                    high=float(k[3]),
-                    low=float(k[4]),
-                    close=float(k[2]),
+                    high=max(float(k[2]), float(k[1])),#there is an error in bitmart api, high is not always greater than open
+                    low=float(k[3]),
+                    close=float(k[4]),
                     volume=float(k[5])
                 ))
             return klines

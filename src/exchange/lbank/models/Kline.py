@@ -28,7 +28,6 @@ class Kline:
         """Returns the string representation of the model"""
         return pprint.pformat(self.to_dict())
 
-@staticmethod
 def editJsonResponse(response):
     if response.__contains__('data'):
         response=response['data']

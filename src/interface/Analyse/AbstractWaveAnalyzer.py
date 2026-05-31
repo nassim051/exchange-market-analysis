@@ -17,7 +17,7 @@ class AbstractWaveAnalyzer(ABC):
     'month1': int(timedelta(days=30).total_seconds())  # Approximate
 } 
 
-    def __init__(self,basicDataMan,size ,marketMan,exchange,timeFrame, nbHour,waveVolatility,secondOrMili,period,numProcess,numOfThreads):
+    def __init__(self,basicDataMan,size ,marketMan,exchange,timeFrame, nbHour,waveVolatility,secondOrMili,period,numProcess,numOfThreads,startDate=None,endDate=None):
         self.result = multiprocessing.Manager().dict()
         self.marketMan= marketMan
         self.basicDataMan=basicDataMan
@@ -31,6 +31,8 @@ class AbstractWaveAnalyzer(ABC):
         self.numOfThreads=numOfThreads
         self.sleep=0.6
         self.size=size
+        self.startDate=startDate
+        self.endDate=endDate
     def extractSymbols(self,result):
         symbols=[]
         if self.exchange=='binance':
@@ -89,8 +91,10 @@ class AbstractWaveAnalyzer(ABC):
 
 
     def getLastPrice(self,symbol):
-        klineEndDate=time.time()*self.secondOrMili
-        klineStartDate=int(klineEndDate-timedelta(hours=self.nbHour).total_seconds()*self.secondOrMili)-self.TIMEFRAMES_TO_SECOND_MAP[self.timeFrame]*self.period*self.secondOrMili
+        klineEndDate=(self.endDate if self.endDate else time.time())*self.secondOrMili
+        candle_duration = self.TIMEFRAMES_TO_SECOND_MAP[self.timeFrame] * self.secondOrMili
+        klineStartDate = int(self.startDate*self.secondOrMili) if self.startDate else int(klineEndDate - candle_duration * self.nbHour)
+
         prices=self.marketMan.getKline(size=self.size,symbol=symbol,time=klineStartDate,type=self.timeFrame)
         if len(prices)==0:
             return prices
@@ -147,6 +151,9 @@ class AbstractWaveAnalyzer(ABC):
         amplitude_percentages = []
 
         for price in prices:
+            if price['low']>price['high']:
+                print(f"Error: Low price {price['low']} is greater than high price {price['high']} for {price['time']}")
+                
             amplitude_percentage = ((price['high'] - price['low']) / price['low']) * 100
             amplitude_percentages.append(amplitude_percentage)    
         return sum(amplitude_percentages)/len(amplitude_percentages)

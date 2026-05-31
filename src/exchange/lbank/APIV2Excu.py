@@ -1,20 +1,19 @@
-# -*- coding:utf-8 -*-
-# project name: project
-# file name : module
 import os
 from configparser import ConfigParser
-
 import src.exchange.lbank.client as client
-
 
 class APIV2Excu:
 
     def __init__(self,key):
+        configfile = u'./src/exchange/lbank/constant.ini'
+        filePath = os.path.abspath(configfile)
+        print("Looking for config file at:", filePath)  # <-- debug print
 
-        configfile=u'./src/exchange/lbank/constant.ini'
-        filePath=os.path.abspath(configfile)
         self.config = ConfigParser()
-        self.config.read(filePath)
+        files_read = self.config.read(filePath)
+        print("Files successfully read:", files_read)  # <-- debug print
+        print("Sections found in the config:", self.config.sections())  # <-- debug print
+
         if key==1:
             self.apiKey=self.config.get("API","APIKEY")
             privKey=self.config.get("priveKey","PriveKey")
@@ -31,11 +30,10 @@ class APIV2Excu:
             self.apiKey=self.config.get("API","APIKEY5")
             privKey=self.config.get("priveKey","PriveKey5")
         
-       # self.secrtkey=self.config.get("API","SECRTKEY")
         self.privKey="-----BEGIN RSA PRIVATE KEY-----\n"+privKey+"\n-----END RSA PRIVATE KEY-----"
-        # print(self.privKey)
         self.signMethod=self.config.get("SIGNMETHOD","signmethod")
         self.excuReq=client.client()
+
 
     def ExcuRequests(self,par,str):
         url,me=self.config.get("URL",str).split(",")

@@ -1,3 +1,6 @@
+import sys
+sys.dont_write_bytecode = True
+
 import src.exchange.lbank.analyse.LBankAnalystMan as LBankAnalystMan
 import src.exchange.gateio.Analyse.GateioAnalystMan as GateioAnalystMan
 
@@ -6,7 +9,7 @@ from src.exchange.binance.Analyse import VolumeChangeAlert_AllPairs,VolumeChange
 import src.exchange.lbank.analyse.LBankWaveAnalyzer as LBankWaveAnalyzer
 import src.exchange.gateio.Analyse.GateioWaveAnalyzer as GateioWaveAnalyzer
 import src.exchange.mexc.Analyse.MexcWaveAnalyzer as MexcWaveAnalyzer
-import src.exchange.bitmart.Analyse.BitMartWaveAnalyzer as BitMartWaveAnalyzer
+#import src.exchange.bitmart.Analyse.BitMartWaveAnalyzer as BitMartWaveAnalyzer
 
 import src.exchange.binance.Analyse.BinanceWaveAnalyzer as BinanceWaveAnalyzer
 import  src.Telegram.Telegram as Telegram
@@ -14,6 +17,7 @@ import src.db.DbManager as DbManager
 
 
 import sys
+from datetime import datetime
 TIME_FRAMES = [
     'minute5', 'minute15', 'minute30', 'hour1', 'hour4', 'hour8', 'hour12', 'day1', 'week1', 'month1'
 ]
@@ -109,15 +113,18 @@ def searchInXt():
         nbThreads = getNbThreads()
         waveAmplitude = getWaveMinimumAmplitude()
         timeFrame = getTimeFrame()
-        nbHours = getNbHours()
         period = getPeriode()
+        startDate,endDate=getDateRange()
+        nbHours = getNbHours() if startDate is None and endDate is None else 0
         XtWaveAnalyzer.XtWaveAnalyzer(
             nbHour=nbHours,
             period=period,
             numProcess=nbProcess,
             numOfThreads=nbThreads,
             waveVolatility=waveAmplitude,
-            timeFrame=timeFrame
+            timeFrame=timeFrame,
+            startDate=startDate,
+            endDate=endDate
         ).run()
 
 def searchInBitMart():
@@ -167,9 +174,10 @@ def searchInLBank():
         nbThreads=getNbThreads()
         waveAmplitude=getWaveMinimumAmplitude()
         timeFrame=getTimeFrame()
-        nbHours=getNbHours()
         period=getPeriode()
-        LBankWaveAnalyzer.LBankWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame).run()
+        startDate,endDate=getDateRange()
+        nbHours=getNbHours() if startDate is None and endDate is None else 0
+        LBankWaveAnalyzer.LBankWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame,startDate=startDate,endDate=endDate).run()
 
 def searchInGate():
     option=showOptions()
@@ -188,9 +196,10 @@ def searchInGate():
             nbThreads=getNbThreads()
             waveAmplitude=getWaveMinimumAmplitude()
             timeFrame=getTimeFrame()
-            nbHours=getNbHours()
             period=getPeriode()
-            GateioWaveAnalyzer.GateioWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame).run()
+            startDate,endDate=getDateRange()
+            nbHours=getNbHours() if startDate is None and endDate is None else 0
+            GateioWaveAnalyzer.GateioWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame,startDate=startDate,endDate=endDate).run()
 
 def searchInMexc():
     option=showOptions()
@@ -209,9 +218,10 @@ def searchInMexc():
             nbThreads=getNbThreads()
             waveAmplitude=getWaveMinimumAmplitude()
             timeFrame=getTimeFrame()
-            nbHours=getNbHours()
             period=getPeriode()
-            MexcWaveAnalyzer.MexcWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame).run()
+            startDate,endDate=getDateRange()
+            nbHours=getNbHours() if startDate is None and endDate is None else 0
+            MexcWaveAnalyzer.MexcWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame,startDate=startDate,endDate=endDate).run()
 
 def showBinanceOptions():
     while True:
@@ -248,9 +258,10 @@ def searchInBinance():
             nbThreads=getNbThreads()
             waveAmplitude=getWaveMinimumAmplitude()
             timeFrame=getTimeFrame()
-            nbHours=getNbHours()
             period=getPeriode()
-            BinanceWaveAnalyzer.BinanceWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame).run()
+            startDate,endDate=getDateRange()
+            nbHours=getNbHours() if startDate is None and endDate is None else 0
+            BinanceWaveAnalyzer.BinanceWaveAnalyzer(nbHour=nbHours,period=period,numProcess=nbProcess,numOfThreads=nbThreads,waveVolatility=waveAmplitude,timeFrame=timeFrame,startDate=startDate,endDate=endDate).run()
     
 def searchInBinance_onePair():
     while True:
@@ -281,6 +292,20 @@ def getSymbol():
         else: 
             print("Please enter a string")
      
+def getDateRange():
+    print("Date range for historical mode (leave both blank for live mode):")
+    startStr = input("  Start date (DD/MM/YYYY) or press Enter to skip: ").strip()
+    endStr = input("  End date   (DD/MM/YYYY) or press Enter to skip: ").strip()
+    if not startStr and not endStr:
+        return None, None
+    try:
+        startDate = datetime.strptime(startStr, "%d/%m/%Y").timestamp() if startStr else None
+        endDate = datetime.strptime(endStr, "%d/%m/%Y").timestamp() if endStr else None
+        return startDate, endDate
+    except ValueError:
+        print("Invalid date format — switching to live mode.")
+        return None, None
+
 def getNbHours():
     while True:
         nbHours = input("Please enter the number of candle back from the current time to start analyzing data: ")

@@ -27,10 +27,9 @@ class OrderBook:
         """Returns the string representation of the model"""
         return pprint.pformat(self.to_dict())
 
-@staticmethod
 def editJsonResponse(response):
      
-    if response['msg'].__eq__("Success")==False:
+    if response['msg'].__eq__("Success")==False or response['data'] is None:
         return -1
     edited_response = OrderBook(
     asks=response['data']['asks'],

@@ -10,7 +10,7 @@ import src.db.DbManager as DbManager
 import src.exchange.gateio.Constants as credential
 from decimal import Decimal
 class OrderBookTrader:
-    def __init__(self,symbol,chase_amount,buyAmount=0,sellAmount=0,interval="4h",limit=20,strategy='range'):
+    def __init__(self,symbol,chase_amount,buyAmount=0,sellAmount=0,interval="4h",limit=20,strategy='down'):
         self.symbol=symbol
         self.buyAmount=buyAmount
         self.chase_amount=chase_amount
@@ -34,8 +34,10 @@ class OrderBookTrader:
         self.dbManager= DbManager.DbManager()    
         self.interval=interval
         self.limit=limit
+        print(f"Trader initialized for {self.symbol} with chase amount {self.chase_amount}, buy amount {self.buyAmount}, sell amount {self.sellAmount}, interval {self.interval}, strategy {self.strategy}")
     def main(self):
             self.order_book=self.fetch_order_book()
+
             if self.buyAmount > 0 and self.buyAmount*self.order_book.bids[0][0]>3:
                 if self.is_order_pending(self.buy_order_id):
                     order_info=self.get_order(self.buy_order_id)
@@ -128,6 +130,7 @@ class OrderBookTrader:
         bands = taMan.TaMan().calculate_bollinger_bands(prices)
         lower = bands['lower_band']
         middle = bands['middle_band']
+
         if self.strategy == 'range':
             return lower + 0.2 * (middle - lower)
         return lower - 0.05 * (middle - lower)
@@ -145,15 +148,13 @@ class OrderBookTrader:
 
     def find_target_price(self, order_book, order_type, limit_price):
             if order_type == 'buy':
-   #             return 0, 0.002935
-                for index, bid in enumerate(order_book.bids):
+                for index, bid in enumerate(order_book.bids): 
                     if bid[1] >= self.chase_amount and bid[0] < limit_price:
                         print(type(index))
                         print(type(bid[0]))
                         print(f"l'll place an order in {bid[0]}+{self.priceAccuracy}")
                         return index, float(Decimal(str(bid[0])) + Decimal(str(self.priceAccuracy)))  # Just above the target
             elif order_type == 'sell':
-    #            return 0, 0.003042
                 bought_price = self.get_purchased_price()
                 for index, ask in enumerate(order_book.asks):
                     if ask[1] >= self.chase_amount and ask[0] > limit_price and ask[0] > bought_price * 1.01:
@@ -178,6 +179,7 @@ class OrderBookTrader:
 
 
     def update_order_book(self,order_book, type, index, price, amount):
+        
         if type == 'buy':
             if order_book.bids[index][0] == price:
                 order_book.bids[index][1] += amount

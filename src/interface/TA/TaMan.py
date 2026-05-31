@@ -20,7 +20,6 @@ class TaMan:
         closing_prices = self._extract_closing_prices(price_data)
         if len(closing_prices) < window:
             raise ValueError("Not enough data to calculate Bollinger Bands. Need at least `window` candles.")
-
         # Calculate Bollinger Bands
         middle_band = closing_prices.rolling(window=window).mean()
         std_dev = closing_prices.rolling(window=window).std()

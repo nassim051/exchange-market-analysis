@@ -22,7 +22,6 @@ class TradingPairs:
         """Returns the string representation of the model"""
         return pprint.pformat(self.to_dict())
 
-@staticmethod
 def editJsonResponse(response):
     edited_response = []
     for item in response['data']:

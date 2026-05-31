@@ -7,6 +7,8 @@ import threading
 from src.exchange.binance.binance_git.binance.spot import Spot
 from src.exchange.binance.BinanceBasicDataMan import BinanceBasicDataMan
 
+import logging
+logging.disable(logging.CRITICAL)
 
 class VolumeChangeAlert_AllPairs:
     def __init__(self,interval,numProcess,numOfThreads):
@@ -21,6 +23,8 @@ class VolumeChangeAlert_AllPairs:
         self.yellowRate=10
         self.orangeRate=20
         self.sleep=0.8
+        self.nb_finsihed=0
+        self.nb_symbols=0
         
 
     def startAnalyze(self,startTime,endTime):
@@ -30,6 +34,7 @@ class VolumeChangeAlert_AllPairs:
         for sym in self.basicDataMan.getAccuracyInfo()['symbols']:
             if sym['symbol'].endswith('USDT'):
                 symbols.append(sym['symbol'])
+        self.nb_symbols=len(symbols)
         chunk_size = len(symbols) // self.numProcess
         processes = []
 
@@ -102,6 +107,9 @@ class VolumeChangeAlert_AllPairs:
                         nbRed+=1
                         nbLastPositiveSignal=0
                         lastSignalColor='red'
+            print(f"Finished analyzing {symbol}")
+            self.nb_finsihed+=1
+            print(f"{self.nb_finsihed} of {self.nb_symbols} finished")
             self.result[symbol]={'nbGreen':nbGreen,'nbYellow':nbYellow,'nbOrange':nbOrange,'nbRed':nbRed,'nbLastPositiveSignal':nbLastPositiveSignal,'lastSignalColor':lastSignalColor}
 
 
@@ -126,9 +134,12 @@ class VolumeChangeAlert_AllPairs:
                 break
         if(len(vol)==0):
             return volList
+        max_rep=0
         while int(vol[len(vol)-1][0])<timenow and len(vol)!=0:
-            index=len(vol)-1
-            print('call')
+            
+            max_rep+=1
+            if max_rep>10000:
+                print(f"{symbol} has too many repetitions, break the loop difference in seconds: {(timenow-vol[len(vol)-1][0])/1000}")   
             while True:
                 try:
                     result=self.spot.klines(limit=1000,symbol=symbol,startTime=vol[len(vol)-1][0]+1000,endTime=timenow,interval='1s')
